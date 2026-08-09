@@ -21,6 +21,7 @@ set(TESTS
     test-layouts.cpp
     test-symbols.cpp
     test-graph.cpp
+    test-tensors.cpp
 )
 
 if (TESTS)  

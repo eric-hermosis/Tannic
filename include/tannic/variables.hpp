@@ -58,13 +58,13 @@ public:
         } 
         return *this;
     }
-
-    void initialize(Scope scope) const;
+ 
     auto forward() const -> Node*;
 
 protected: 
     void copy(Variable const& other);
     void move(Variable & other) noexcept;
+    void initialize(Scope scope) const;
     void acquire(Node*);
     void release();
 

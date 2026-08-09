@@ -27,6 +27,10 @@ namespace tannic::expressions {
   
 class Tensor : public Variable {
 public: 
+
+    constexpr Tensor() 
+    :   type_(unknown) {}
+
     constexpr Tensor(Type const& type)
     :   type_(type) {}
 
@@ -39,7 +43,6 @@ public:
     ,   layout_(shape, strides) {}
 
     constexpr Tensor(Composable auto const& expression) 
-    
     :   type_(expression.type())
     ,   layout_(expression.layout()) {
         if !consteval { 
@@ -65,6 +68,14 @@ public:
     [[nodiscard]] constexpr auto layout() const -> Layout const& {
         return layout_;
     } 
+
+    void initialize() const {
+        Variable::initialize(Scope::Local);
+    }
+
+    auto forward() const -> Node* {
+        return Variable::forward();
+    }
 
 private:
     Type type_;

@@ -52,7 +52,7 @@ public:
     ,   sources(expressions...) {} 
 
     template<typename Self>
-    auto forward(this Self&& self,) -> Node* {
+    auto forward(this Self&& self) -> Node* {
         if (!self.node_) {
             self.node_ = Graph::allocate(Scope::Local);            
             template for (auto const& source : self.sources) {

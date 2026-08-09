@@ -99,7 +99,7 @@ auto Graph::capacity() -> std::size_t {
     return local.stack.size();
 }
 
-auto Graph::free() -> std::size_t {
+auto Graph::available() -> std::size_t {
     return local.free.size();
 }
 

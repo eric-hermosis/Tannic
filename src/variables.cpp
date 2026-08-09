@@ -39,7 +39,7 @@ void Variable::release() {
 
 void Variable::initialize(Scope scope) const {
     assert(!node_);
-    node_ = Node::allocate(scope);
+    node_ = Graph::allocate(scope);
     node_->acquire();
 }
 

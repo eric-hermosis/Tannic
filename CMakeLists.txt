@@ -9,6 +9,7 @@ set(SOURCES
     src/io.cpp
     src/environments.cpp 
     src/graph.cpp
+    src/variables.cpp
 )
 
 add_library(Tannic STATIC ${SOURCES})  

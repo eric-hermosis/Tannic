@@ -51,7 +51,7 @@ public:
     static void preallocate(std::size_t count);
     [[nodiscard]] static auto allocate(Scope scope) -> Node*;
     [[nodiscard]] static auto capacity() -> std::size_t;
-    [[nodiscard]] static auto free() -> std::size_t;
+    [[nodiscard]] static auto available() -> std::size_t;
 };
 
 }
