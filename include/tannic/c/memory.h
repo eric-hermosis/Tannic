@@ -13,27 +13,41 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
+//
 
-#ifndef ENVIRONMENTS_HPP_0x45524943 
-#define ENVIRONMENTS_HPP_0x45524943  
- 
-#include <variant>   
-#include <string_view>
+#ifndef MEMORY_H_0x45524943
+#define MEMORY_H_0x45524943 
 
-namespace tannic { 
- 
-class Host {};  
+#ifdef __cplusplus 
+#include <cstddef>    
+namespace tannic {
+#else 
+#include <stddef.h> 
+#endif 
+  
+enum domain {
+    HOST,
+    DEVICE
+};  
+  
+struct allocator_t { 
+    const char* name;
+    void* (*allocate)(size_t);
+    void (*deallocate)(void*, size_t);
+};    
 
-class Environment {
-    public: 
-    Environment() = default; 
-    Environment(Host const& host);
-
-    private:
-    std::variant<std::monostate, Host> domain_;
+struct buffer_t {
+    size_t size;
+    void* address;
 };
 
-} 
+struct memory_t {   
+    enum domain domain; 
+    struct allocator_t allocator;  
+    struct buffer_t buffer; 
+}; 
 
+#ifdef __cplusplus  
+}
+#endif 
 #endif

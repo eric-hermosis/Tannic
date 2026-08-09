@@ -13,27 +13,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
-
-#ifndef ENVIRONMENTS_HPP_0x45524943 
-#define ENVIRONMENTS_HPP_0x45524943  
+//
+#ifndef TENSORS_H_0x45524943
+#define TENSORS_H_0x45524943 
  
-#include <variant>   
-#include <string_view>
+#include <tannic/c/types.h>
+#include <tannic/c/layouts.h>
 
-namespace tannic { 
- 
-class Host {};  
+#ifdef __cplusplus 
+namespace tannic {
+#endif 
 
-class Environment {
-    public: 
-    Environment() = default; 
-    Environment(Host const& host);
-
-    private:
-    std::variant<std::monostate, Host> domain_;
+struct tensor_t { 
+    enum type type;
+    struct layout_t layout;
 };
 
-} 
+#ifdef __cplusplus 
+}
+#endif 
 
-#endif
+#endif 

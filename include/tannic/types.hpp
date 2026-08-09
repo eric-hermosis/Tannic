@@ -1,5 +1,21 @@
-#ifndef TYPES_HPP
-#define TYPES_HPP
+// Copyright 2026 Eric Hermosis
+//
+// This file is part of the Tannic Tensor Library.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// 
+#ifndef TYPES_HPP_0x45524943
+#define TYPES_HPP_0x45524943 
 
 #include <iosfwd>
 #include <cstdint>
@@ -7,32 +23,9 @@
 #include <string_view> 
 #include <complex>  
 #include <tuple>  
+#include <tannic/c/types.h>
 
-namespace tannic {
-
-enum type {   
-    boolean, 
-    uint8,
-    uint16,
-    uint32,
-    uint64,
-    int8,
-    int16,
-    int32,
-    int64,
-    float16,
-    bfloat16,
-    float32,
-    float64,
-    complex64,   
-    complex128,  
-    object,
-    any, 
-    unknown,
-    TYPES
-};
-
-} namespace tannic::types {   
+namespace tannic {   
 
 enum class Kind { 
     Boolean,
@@ -263,8 +256,8 @@ public:
         return traits[type_].kind;
     }
  
-    template<typename Tag, typename... Types>
-    [[nodiscard]] static constexpr auto infer(Tag, Type const& first, Types const&... rest) -> Type { 
+    template<typename Tag = void, typename... Types>
+    [[nodiscard]] static constexpr auto infer(Type first, Types... rest) -> Type { 
         type result = first;
         ((result = promote<Tag>(result, rest)), ...);
         return Type(result);
@@ -274,12 +267,8 @@ private:
     type type_;
 }; 
  
+auto operator<<(std::ostream&, Type type) -> std::ostream&; 
 
-} namespace tannic {
-  
-using types::Type;
-auto operator<<(std::ostream&, Type const& type) -> std::ostream&; 
-
-}  
+} 
 
 #endif 

@@ -13,27 +13,36 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
+//
+#ifndef TYPES_H_0x45524943
+#define TYPES_H_0x45524943   
+#ifdef __cplusplus 
+namespace tannic {
+#endif 
 
-#ifndef ENVIRONMENTS_HPP_0x45524943 
-#define ENVIRONMENTS_HPP_0x45524943  
- 
-#include <variant>   
-#include <string_view>
+enum type {   
+    boolean, 
+    uint8,
+    uint16,
+    uint32,
+    uint64,
+    int8,
+    int16,
+    int32,
+    int64,
+    float16,
+    bfloat16,
+    float32,
+    float64,
+    complex64,   
+    complex128,  
+    object,
+    any, 
+    unknown,
+    TYPES
+};   
 
-namespace tannic { 
- 
-class Host {};  
-
-class Environment {
-    public: 
-    Environment() = default; 
-    Environment(Host const& host);
-
-    private:
-    std::variant<std::monostate, Host> domain_;
-};
-
-} 
-
-#endif
+#ifdef __cplusplus 
+}
+#endif 
+#endif // TYPES_H_0x45524943

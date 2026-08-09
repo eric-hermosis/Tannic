@@ -14,26 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // 
+#ifndef SYMBOLS_HPP_0x45524943
+#define SYMBOLS_HPP_0x45524943
 
-#ifndef ENVIRONMENTS_HPP_0x45524943 
-#define ENVIRONMENTS_HPP_0x45524943  
- 
-#include <variant>   
+#include <meta> 
 #include <string_view>
 
-namespace tannic { 
- 
-class Host {};  
+namespace tannic {
 
-class Environment {
-    public: 
-    Environment() = default; 
-    Environment(Host const& host);
+class Symbol {
+public:
+    template<class Tag>
+    constexpr Symbol(Tag const&)  
+    :   name_(std::meta::identifier_of(^^Tag))  
+    {}
+    
+    [[nodiscard]] constexpr auto name() const -> std::string_view { 
+        return name_; 
+    }
 
-    private:
-    std::variant<std::monostate, Host> domain_;
+private:    
+    std::string_view name_;
 };
 
-} 
+}
 
 #endif
