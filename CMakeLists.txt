@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SOURCES   
     src/io.cpp
     src/environments.cpp 
+    src/graph.cpp
 )
 
 add_library(Tannic STATIC ${SOURCES})  

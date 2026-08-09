@@ -17,7 +17,7 @@
 #ifndef VARIABLES_HPP_0x45524943
 #define VARIABLES_HPP_0x45524943
 
-#include <tannic/scopes.hpp>
+#include <tannic/scopes.hpp> 
 
 namespace tannic {
 
@@ -39,7 +39,7 @@ public:
         } 
     }
 
-    constexpr Variable(Variable & other) noexcept { 
+    constexpr Variable(Variable && other) noexcept { 
         if !consteval { 
             move(other); 
         }
@@ -47,24 +47,25 @@ public:
 
     constexpr auto operator=(Variable const& other) { 
         if !consteval { 
-            copy(other);
-            return *this; 
+            copy(other); 
         } 
+        return *this; 
     }
 
     constexpr auto operator=(Variable && other) noexcept { 
         if !consteval { 
-            move(other);
-            return *this; 
+            move(other);  
         } 
+        return *this;
     }
 
+    void initialize(Scope scope) const;
     auto forward() const -> Node*;
 
-protected:
-    Variable(Scope scope);
+protected: 
     void copy(Variable const& other);
     void move(Variable & other) noexcept;
+    void acquire(Node*);
     void release();
 
 private:    

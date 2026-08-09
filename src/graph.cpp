@@ -1,5 +1,8 @@
+#include <mutex>
 #include <stack>
 #include <vector>
+#include <cassert>
+#include <utility>
 #include <tannic/graph.hpp>
 
 namespace tannic {
@@ -12,6 +15,7 @@ Node::Node(Index index, Scope scope)
 }
 
 static struct {
+    std::mutex mutex;
     std::size_t index = 0;
     std::stack<Node> stack;
 } global;
@@ -22,10 +26,53 @@ static thread_local struct {
     std::stack<Node*, std::vector<Node*>> free;
 } local;
 
-auto Node::allocate(Scope scope) -> Node* {
+auto Node::index() const noexcept -> Index {
+    return index_;
+}
+
+auto Node::scope() const noexcept -> Scope {
+    return scope_;
+}
+
+void Node::acquire() noexcept {
+    if (scope_ == Scope::Local) {
+        ++links_;
+    }
+}
+
+void Node::release() noexcept {
+    assert(links_ > 0);
+    if (scope_ == Scope::Local) {
+        if (--links_ == 0) {
+            prune();
+            local.free.push(this);
+        }
+    }
+}
+
+void Node::link(Node* source) noexcept {
+    source->acquire();
+    priors_.push_back(source);
+}
+
+void Node::prune() noexcept {
+    for (auto node : priors_) {
+        node->release();
+    }
+    priors_.clear();
+}
+
+void Graph::preallocate(std::size_t count) {
+    while (local.stack.size() < count) {
+        local.free.emplace(&local.stack.emplace(local.index++, Scope::Local));
+    }
+}
+
+auto Graph::allocate(Scope scope) -> Node* {
+ 
     switch (scope) {
         
-        case Scope::Local: 
+        case Scope::Local: {
 
             if (local.free.empty()) {
                 return &local.stack.emplace(local.index++, scope);
@@ -36,61 +83,24 @@ auto Node::allocate(Scope scope) -> Node* {
                 local.free.pop();
                 return node;
             }
-    
-        case Scope::Global:
-            return &global.stack.emplace(local.index++, scope);
-        
-        default:
-            [[unreachable]]; 
-    }
-}
+        }
 
-auto Node::index() const noexcept -> Index {
-    return index_;
-}
-
-void Node::acquire() noexcept {
-    switch (scope_) {
-        case Scope::Local:
-            ++links_;
-            break;
-        
-        case Scope::Global:
-            break;
+        case Scope::Global: {
+            std::lock_guard lock(global.mutex);
+            return &global.stack.emplace(global.index++, scope);
+        }
 
         default:
-            [[unreachable]]; 
+            std::unreachable();
     }
 }
 
-void Node::release() noexcept {
-    switch (scope_) {
-        case Scope::Local:
-            if (--links_ == 0) {
-                prune();
-                local.free.push(this);
-            }
-            break;
-        
-        case Scope::Global:
-            break;
-
-        default:
-            [[unreachable]]; 
-    }
+auto Graph::capacity() -> std::size_t {
+    return local.stack.size();
 }
 
-void Node::link(Node* source) {
-    source->acquire();
-    priors_.push_back(source);
-}
-
-void Node::prune() {
-    for (auto node : priors_) {
-        node->release();
-    }
-
-    priors_.clear();
+auto Graph::free() -> std::size_t {
+    return local.free.size();
 }
 
 }

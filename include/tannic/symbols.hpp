@@ -24,6 +24,8 @@ namespace tannic {
 
 class Symbol {
 public:
+    constexpr Symbol() = default;
+
     template<class Tag>
     constexpr Symbol(Tag const&)  
     :   name_(std::meta::identifier_of(^^Tag))  

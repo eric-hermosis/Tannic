@@ -19,6 +19,8 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <mutex>
+#include <stack>
 #include <vector>
 #include <tannic/scopes.hpp>
 
@@ -29,19 +31,27 @@ public:
     using Index = std::size_t;
     Node(Index index, Scope scope);
 
-    [[nodiscard]] static auto allocate(Scope scope) -> Node*;
-    [[nodiscard]] auto index() const noexcept -> std::size_t;
-    
-    void acquire();
-    void release();
-    void link(Node* source);
-    void prune();
+    [[nodiscard]] auto index() const noexcept -> Index;
+    [[nodiscard]] auto scope() const noexcept -> Scope;
+
+    void acquire() noexcept;
+    void release() noexcept;
+    void link(Node* source) noexcept;
+    void prune() noexcept;
 
 private:
     Index index_;
     Scope scope_;
     std::uint32_t links_ = 0;
     std::vector<Node*> priors_;
+};
+
+class Graph {
+public:
+    static void preallocate(std::size_t count);
+    [[nodiscard]] static auto allocate(Scope scope) -> Node*;
+    [[nodiscard]] static auto capacity() -> std::size_t;
+    [[nodiscard]] static auto free() -> std::size_t;
 };
 
 }

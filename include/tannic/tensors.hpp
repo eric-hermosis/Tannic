@@ -19,12 +19,13 @@
 
 #include <tannic/types.hpp>
 #include <tannic/layouts.hpp>
-#include <tannic/symbols.hpp>
+#include <tannic/symbols.hpp>  
+#include <tannic/variables.hpp>
 #include <tannic/expressions.hpp>  
 
 namespace tannic::expressions {
-
-class Tensor {
+  
+class Tensor : public Variable {
 public: 
     constexpr Tensor(Type const& type)
     :   type_(type) {}
@@ -38,10 +39,12 @@ public:
     ,   layout_(shape, strides) {}
 
     constexpr Tensor(Composable auto const& expression) 
+    
     :   type_(expression.type())
     ,   layout_(expression.layout()) {
         if !consteval { 
-            
+            auto node = expression.forward();
+            acquire(node);
         }
     }
 
@@ -49,7 +52,8 @@ public:
         type_   = expression.type();
         layout_ = expression.layout();         
         if !consteval { 
-
+            auto node = expression.forward();
+            acquire(node);
         }
         return *this;
     } 

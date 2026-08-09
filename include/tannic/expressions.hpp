@@ -19,6 +19,7 @@
  
 #include <tuple> 
 #include <type_traits> 
+#include <tannic/graph.hpp>
 
 namespace tannic {
   
@@ -49,8 +50,23 @@ public:
     constexpr Expression(Symbol symbol, Expressions const& ... expressions) 
     :   symbol(symbol)
     ,   sources(expressions...) {} 
+
+    template<typename Self>
+    auto forward(this Self&& self,) -> Node* {
+        if (!self.node_) {
+            self.node_ = Graph::allocate(Scope::Local);            
+            template for (auto const& source : self.sources) {
+                self.node_->link(source.forward());
+            }
+        }
+
+        return self.node_;
+    }
+
+private:
+    mutable Node* node_ = nullptr;
 };
 
-}
+}   
 
 #endif

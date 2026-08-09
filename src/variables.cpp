@@ -1,14 +1,10 @@
+#include <cassert>
 #include <utility> 
 #include <tannic/graph.hpp>
 #include <tannic/variables.hpp>
 
 namespace tannic {
     
-Variable::Variable(Scope scope) {
-    node_ = Node::allocate(scope);
-    node_->acquire();
-}
-
 void Variable::copy(Variable const& other) {
     if (node_ != other.node_) {  
         if (other.node_) {
@@ -26,6 +22,14 @@ void Variable::move(Variable & other) noexcept {
     }
 }
 
+void Variable::acquire(Node* node) {
+    if (node_) {
+        node_-> release();  
+    }
+    node_ = node;
+    node_->acquire();
+}
+
 void Variable::release() { 
     if (node_) {
         node_-> release();  
@@ -33,11 +37,17 @@ void Variable::release() {
     }  
 }
 
+void Variable::initialize(Scope scope) const {
+    assert(!node_);
+    node_ = Node::allocate(scope);
+    node_->acquire();
+}
+
 auto Variable::forward() const -> Node* {
     if (!node_) {    
-        node_ = Node::allocate(Scope::Local);
-        node_->acquire();
+        initialize(Scope::Global); 
     }
+    return node_;
 }
 
 }

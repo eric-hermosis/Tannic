@@ -1,32 +1,35 @@
 #include <gtest/gtest.h>
-#include <tannic/symbols.hpp>
-#include <tannic/types.hpp>
-#include <tannic/layouts.hpp>
-
-/*
-#include <tannic/graph/nodes.hpp>
+#include <tannic/graph.hpp>
 
 using namespace tannic;
 
-TEST(TestGraph, TestNodes) {
-    struct Example{};
-    auto symbol = Example{};
-    auto type = float32;
-    auto layout = Layout(Shape{2,2});
+TEST(TestGraph, TestConstruction) { 
 
-    Node* x = Node::create(symbol, type, layout);
-    Node* y = Node::create(symbol, type, layout);
-    Node* z = Node::create(symbol, type, layout);
+    Graph::preallocate(6);
 
-    Node* xy =  Node::create(symbol, type, layout); xy->link(x); xy->link(y);
-    Node* yz =  Node::create(symbol, type, layout); yz->link(y); yz->link(z);
-    Node* zx =  Node::create(symbol, type, layout); zx->link(z); zx->link(x);
+    Node* x = Graph::allocate(Scope::Local);
+    Node* y = Graph::allocate(Scope::Local);
+    Node* z = Graph::allocate(Scope::Local);
 
-    Node* xyyz =  Node::create(symbol, type, layout); xyyz->link(xy); xyyz->link(yz);
-    Node* xyyzzx =  Node::create(symbol, type, layout); xyyzzx->link(xyyz); xyyzzx->link(zx);
+    EXPECT_EQ(Graph::capacity(), 6);
+    EXPECT_EQ(Graph::free(), 3);
+
+    Node* xy = Graph::allocate(Scope::Local); xy->link(x); xy->link(y);
+    Node* yz = Graph::allocate(Scope::Local); yz->link(y); yz->link(z);
+    Node* zx = Graph::allocate(Scope::Local); zx->link(z); zx->link(x);
+
+    EXPECT_EQ(Graph::capacity(), 6);
+    EXPECT_EQ(Graph::free(), 0);
+
+    Node* xyyz = Graph::allocate(Scope::Local); xyyz->link(xy); xyyz->link(yz);
+    Node* xyyzzx = Graph::allocate(Scope::Local); xyyzzx->link(xyyz); xyyzzx->link(zx);
  
+    EXPECT_EQ(Graph::capacity(), 8);
+    EXPECT_EQ(Graph::free(), 0);
+
     xyyzzx->acquire();
     xyyzzx->release(); 
-}
 
-*/
+    EXPECT_EQ(Graph::capacity(), 8);
+    EXPECT_EQ(Graph::free(), 8);
+} 
