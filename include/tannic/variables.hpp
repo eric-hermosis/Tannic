@@ -17,7 +17,7 @@
 #ifndef VARIABLES_HPP_0x45524943
 #define VARIABLES_HPP_0x45524943
 
-#include <tannic/scopes.hpp> 
+#include <tannic/context.hpp> 
 
 namespace tannic {
 
@@ -58,15 +58,16 @@ public:
         } 
         return *this;
     }
- 
-    auto forward() const -> Node*;
 
 protected: 
+
     void copy(Variable const& other);
-    void move(Variable & other) noexcept;
-    void initialize(Scope scope) const;
+    void move(Variable & other) noexcept; 
     void acquire(Node*);
     void release();
+
+    auto forward(Context context) const -> Node*;
+    void initialize(Context context) const;
 
 private:    
     mutable Node* node_ = nullptr;

@@ -19,6 +19,7 @@
  
 #include <tuple> 
 #include <type_traits> 
+#include <tannic/context.hpp>
 #include <tannic/graph.hpp>
 
 namespace tannic {
@@ -43,28 +44,30 @@ public:
 template<class Symbol, class ... Expressions>
 class Expression {
 public: 
-    using Index = std::size_t;
-    std::decay<Symbol>::type symbol;
-    std::tuple<typename Trait<Expressions>::type ...> sources;  
+    constexpr Expression(Symbol symbol, Expressions const& ... sources) 
+    :   symbol_(symbol)
+    ,   sources_(sources...) {} 
 
-    constexpr Expression(Symbol symbol, Expressions const& ... expressions) 
-    :   symbol(symbol)
-    ,   sources(expressions...) {} 
+    constexpr auto symbol() -> Symbol const& {
+        return symbol_;
+    }
 
     template<typename Self>
-    auto forward(this Self&& self) -> Node* {
-        if (!self.node_) {
-            self.node_ = Graph::allocate(Scope::Local);            
-            template for (auto const& source : self.sources) {
-                self.node_->link(source.forward());
+    auto forward(this Self&& self, Context context) -> Node* {
+        if(!self.node_) {
+            self.node_ = Graph::allocate(context);    
+            template for (auto const& source : self.sources_) {
+                auto node = source.forward(context);
+                self.node_->link(node);
             }
         }
-
         return self.node_;
     }
 
 private:
     mutable Node* node_ = nullptr;
+    std::decay<Symbol>::type symbol_;
+    std::tuple<typename Trait<Expressions>::type ...> sources_;  
 };
 
 }   

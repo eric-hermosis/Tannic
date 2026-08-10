@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SOURCES   
     src/io.cpp
     src/environments.cpp 
+    src/context.cpp
     src/graph.cpp
     src/variables.cpp
 )

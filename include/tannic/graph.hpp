@@ -22,7 +22,7 @@
 #include <mutex>
 #include <stack>
 #include <vector>
-#include <tannic/scopes.hpp>
+#include <tannic/context.hpp>
 
 namespace tannic {
 
@@ -49,7 +49,7 @@ private:
 class Graph {
 public:
     static void preallocate(std::size_t count);
-    [[nodiscard]] static auto allocate(Scope scope) -> Node*;
+    [[nodiscard]] static auto allocate(Context context) -> Node*;
     [[nodiscard]] static auto capacity() -> std::size_t;
     [[nodiscard]] static auto available() -> std::size_t;
 };

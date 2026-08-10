@@ -57,37 +57,37 @@ struct Exponentiation {};
 } namespace tannic::operators {
 
 using namespace operations; 
-using namespace expressions;
+using namespace expressions; 
 
-template<class Operand>
-constexpr auto operator-(Operand && operand) {
-    return Operation<Negation, Operand>(std::forward<Operand>(operand));
+template<Composable Operand>
+constexpr auto operator-(Operand const& operand) {
+    return Operation<Negation, Operand>(operand);
 }
 
-template<class Augend, class Addend>
-constexpr auto operator+(Augend && augend, Addend && addend) {
-    return Operation<Addition, Augend, Addend>(std::forward<Augend>(augend), std::forward<Addend>(addend));
+template<Composable Augend, Composable Addend>
+constexpr auto operator+(Augend const& augend, Addend const& addend) {
+    return Operation<Addition, Augend, Addend>(augend, addend);
 }
 
-template<class Dividend, class Divisor>
-constexpr auto operator/(Dividend && dividend, Divisor && divisor) {
-    return Operation<Division, Dividend, Divisor>(std::forward<Dividend>(dividend), std::forward<Divisor>(divisor));
+template<Composable Dividend, Composable Divisor>
+constexpr auto operator/(Dividend const& dividend, Divisor const& divisor) {
+    return Operation<Division, Dividend, Divisor>(dividend, divisor);
 }
 
-template<class Minuend, class Subtrahend>
-constexpr auto operator-(Minuend && minuend, Subtrahend && subtrahend) {
-    return Operation<Subtraction, Minuend, Subtrahend>(std::forward<Minuend>(minuend), std::forward<Subtrahend>(subtrahend));
+template<Composable Minuend, Composable Subtrahend>
+constexpr auto operator-(Minuend const& minuend, Subtrahend const& subtrahend) {
+    return Operation<Subtraction, Minuend, Subtrahend>(minuend, subtrahend);
 }
 
-template<class Multiplicand, class Multiplier>
-constexpr auto operator*(Multiplicand && multiplicand, Multiplier && multiplier) {
-    return Operation<Multiplication, Multiplicand, Multiplier>(std::forward<Multiplicand>(multiplicand), std::forward<Multiplier>(multiplier));
+template<Composable Multiplicand, Composable Multiplier>
+constexpr auto operator*(Multiplicand const& multiplicand, Multiplier const& multiplier) {
+    return Operation<Multiplication, Multiplicand, Multiplier>(multiplicand, multiplier);
 }
 
-template<class Base, class Exponent>
-constexpr auto operator^(Base && base, Exponent && exponent) {
-    return Operation<Exponentiation, Base, Exponent>(std::forward<Base>(base), std::forward<Exponent>(exponent));
-} 
+template<Composable Base, Composable Exponent>
+constexpr auto operator^(Base const& base, Exponent const& exponent) {
+    return Operation<Exponentiation, Base, Exponent>(base, exponent);
+}
 
 } namespace tannic {
 

@@ -14,14 +14,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // 
-#ifndef SCOPES_HPP_0x45524943
-#define SCOPES_HPP_0x45524943
+#ifndef CONTEXT_HPP_0x45524943
+#define CONTEXT_HPP_0x45524943
 
 namespace tannic {
 
 enum class Scope {
     Local,
     Global
+};
+
+class Context {
+public:
+    Context(Scope scope);
+
+    [[nodiscard]] auto scope() const noexcept -> Scope;
+
+private:
+    Scope scope_;
 };
 
 }

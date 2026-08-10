@@ -24,7 +24,7 @@
 #include <tannic/expressions.hpp>  
 
 namespace tannic::expressions {
-  
+   
 class Tensor : public Variable {
 public: 
 
@@ -46,7 +46,8 @@ public:
     :   type_(expression.type())
     ,   layout_(expression.layout()) {
         if !consteval { 
-            auto node = expression.forward();
+            Context context(Scope::Local);
+            auto node = expression.forward(context);
             acquire(node);
         }
     }
@@ -55,7 +56,8 @@ public:
         type_   = expression.type();
         layout_ = expression.layout();         
         if !consteval { 
-            auto node = expression.forward();
+            Context context(Scope::Local);
+            auto node = expression.forward(context);
             acquire(node);
         }
         return *this;
@@ -69,17 +71,23 @@ public:
         return layout_;
     } 
 
-    void initialize() const {
-        Variable::initialize(Scope::Local);
+    auto forward(Context context) const -> Node* {
+        return Variable::forward(context);
     }
 
-    auto forward() const -> Node* {
-        return Variable::forward();
+    void initialize(Scope scope = Scope::Local) const { 
+        Variable::initialize(scope);
     }
 
 private:
     Type type_;
-    Layout layout_;  
+    Layout layout_;   
+};
+
+template<>
+class Trait<Tensor> {
+public:
+    using type = Tensor const&;
 };
 
 } namespace tannic {

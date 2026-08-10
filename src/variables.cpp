@@ -37,17 +37,18 @@ void Variable::release() {
     }  
 }
 
-void Variable::initialize(Scope scope) const {
-    assert(!node_);
-    node_ = Graph::allocate(scope);
-    node_->acquire();
-}
-
-auto Variable::forward() const -> Node* {
+auto Variable::forward(Context context) const -> Node* {
     if (!node_) {    
-        initialize(Scope::Global); 
+        node_ = Graph::allocate(context);
+        node_-> acquire();
     }
     return node_;
+}
+
+void Variable::initialize(Context context) const {
+    assert(!node_);
+    node_ = Graph::allocate(context);
+    node_->acquire();    
 }
 
 }

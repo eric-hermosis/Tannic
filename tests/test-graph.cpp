@@ -4,7 +4,6 @@
 using namespace tannic;
 
 TEST(TestGraph, TestConstruction) { 
-
     Graph::preallocate(6);
 
     Node* x = Graph::allocate(Scope::Local);

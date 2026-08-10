@@ -40,9 +40,9 @@ void Node::acquire() noexcept {
     }
 }
 
-void Node::release() noexcept {
-    assert(links_ > 0);
+void Node::release() noexcept { 
     if (scope_ == Scope::Local) {
+        assert(links_ > 0);
         if (--links_ == 0) {
             prune();
             local.free.push(this);
@@ -68,8 +68,9 @@ void Graph::preallocate(std::size_t count) {
     }
 }
 
-auto Graph::allocate(Scope scope) -> Node* {
- 
+auto Graph::allocate(Context context) -> Node* {
+    auto scope = context.scope();
+    
     switch (scope) {
         
         case Scope::Local: {
