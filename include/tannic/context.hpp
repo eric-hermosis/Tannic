@@ -20,20 +20,34 @@
 namespace tannic {
 
 enum class Scope {
-    Local,
+    Local, 
     Global
+};
+
+class State {
+public:
+    using Index = std::size_t; 
+    State(Index index, Scope scope);
+    [[nodiscard]] auto index() const noexcept -> Index;
+    [[nodiscard]] auto scope() const noexcept -> Scope; 
+    void acquire() noexcept;
+    void release() noexcept;
+
+private:
+    Index index_;
+    Scope scope_;
 };
 
 class Context {
 public:
+    using Index = State::Index;
     Context(Scope scope);
-
+    [[nodiscard]] auto allocate() const noexcept -> State*;  
     [[nodiscard]] auto scope() const noexcept -> Scope;
 
-private:
+private:    
     Scope scope_;
 };
 
-}
-
+} 
 #endif

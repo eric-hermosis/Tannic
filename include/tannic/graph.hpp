@@ -18,38 +18,35 @@
 #define GRAPH_HPP_0x45524943
 
 #include <cstdint>
-#include <cstddef>
-#include <mutex>
+#include <cstddef> 
 #include <stack>
-#include <vector>
-#include <tannic/context.hpp>
+#include <vector> 
 
-namespace tannic {
+namespace tannic { 
+ 
+class State;
+class Context;
 
 class Node {
 public:
-    using Index = std::size_t;
-    Node(Index index, Scope scope);
-
-    [[nodiscard]] auto index() const noexcept -> Index;
-    [[nodiscard]] auto scope() const noexcept -> Scope;
-
+    Node();
     void acquire() noexcept;
-    void release() noexcept;
-    void link(Node* source) noexcept;
+    void release() noexcept; 
+    void link(Node* other) noexcept;
     void prune() noexcept;
+    void set(State* state) noexcept;
+    void reset() noexcept;
 
-private:
-    Index index_;
-    Scope scope_;
-    std::uint32_t links_ = 0;
+private: 
+    State* state_ = nullptr;
+    std::uint32_t links_;
     std::vector<Node*> priors_;
 };
 
 class Graph {
-public:
+public: 
     static void preallocate(std::size_t count);
-    [[nodiscard]] static auto allocate(Context context) -> Node*;
+    [[nodiscard]] static auto allocate(Context const& context) -> Node*;
     [[nodiscard]] static auto capacity() -> std::size_t;
     [[nodiscard]] static auto available() -> std::size_t;
 };

@@ -3,54 +3,46 @@
 #include <vector>
 #include <cassert>
 #include <utility>
+#include <tannic/context.hpp>
 #include <tannic/graph.hpp>
 
 namespace tannic {
     
-Node::Node(Index index, Scope scope)
-:   index_(index)
-,   scope_(scope)
-,   links_(0) {
+Node::Node()
+:   links_(0) {
     priors_.reserve(4);     
 }
 
 static struct {
-    std::mutex mutex;
-    std::size_t index = 0;
+    std::mutex mutex; 
     std::stack<Node> stack;
 } global;
 
-static thread_local struct {
-    std::size_t index = 0;
+static thread_local struct {  
     std::stack<Node> stack;
     std::stack<Node*, std::vector<Node*>> free;
 } local;
-
-auto Node::index() const noexcept -> Index {
-    return index_;
-}
-
-auto Node::scope() const noexcept -> Scope {
-    return scope_;
-}
-
+ 
 void Node::acquire() noexcept {
-    if (scope_ == Scope::Local) {
+    assert(state_);
+    if (state_->scope() == Scope::Local) {
         ++links_;
     }
 }
 
 void Node::release() noexcept { 
-    if (scope_ == Scope::Local) {
+    assert(state_);
+    if (state_->scope() == Scope::Local) {
         assert(links_ > 0);
         if (--links_ == 0) {
-            prune();
+            reset();
             local.free.push(this);
         }
     }
 }
 
 void Node::link(Node* source) noexcept {
+    assert(source);
     source->acquire();
     priors_.push_back(source);
 }
@@ -62,13 +54,27 @@ void Node::prune() noexcept {
     priors_.clear();
 }
 
+void Node::set(State* state) noexcept {
+    assert(!state_);
+    state_ = state;
+    state_-> acquire();
+}
+
+void Node::reset() noexcept {
+    assert(state_);
+    state_-> release();
+    state_ = nullptr;
+    prune();
+}
+
 void Graph::preallocate(std::size_t count) {
     while (local.stack.size() < count) {
-        local.free.emplace(&local.stack.emplace(local.index++, Scope::Local));
+        local.free.emplace(&local.stack.emplace());
     }
 }
 
-auto Graph::allocate(Context context) -> Node* {
+auto Graph::allocate(Context const& context) -> Node* {
+
     auto scope = context.scope();
     
     switch (scope) {
@@ -76,11 +82,14 @@ auto Graph::allocate(Context context) -> Node* {
         case Scope::Local: {
 
             if (local.free.empty()) {
-                return &local.stack.emplace(local.index++, scope);
+                auto node = &local.stack.emplace();   
+                node->set(context.allocate());
+                return node;
             } 
 
             else {
                 auto node = local.free.top();
+                node->set(context.allocate());
                 local.free.pop();
                 return node;
             }
@@ -88,7 +97,9 @@ auto Graph::allocate(Context context) -> Node* {
 
         case Scope::Global: {
             std::lock_guard lock(global.mutex);
-            return &global.stack.emplace(global.index++, scope);
+            auto node = &global.stack.emplace();
+            node->set(context.allocate());
+            return node;
         }
 
         default:

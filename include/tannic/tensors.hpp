@@ -71,12 +71,16 @@ public:
         return layout_;
     } 
 
-    auto forward(Context context) const -> Node* {
-        return Variable::forward(context);
-    }
+    auto forward(Context const& context) const -> Node* {
+        if (!node()) {
+            initialize(context);
+        }
+        return node();
+    } 
 
-    void initialize(Scope scope = Scope::Local) const { 
-        Variable::initialize(scope);
+    void initialize(Context const& context = Context(Scope::Local)) const {
+        auto node = Graph::allocate(context); 
+        acquire(node);
     }
 
 private:

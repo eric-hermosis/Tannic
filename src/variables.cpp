@@ -22,7 +22,7 @@ void Variable::move(Variable & other) noexcept {
     }
 }
 
-void Variable::acquire(Node* node) {
+void Variable::acquire(Node* node) const noexcept {
     if (node_) {
         node_-> release();  
     }
@@ -30,25 +30,11 @@ void Variable::acquire(Node* node) {
     node_->acquire();
 }
 
-void Variable::release() { 
+void Variable::release() const noexcept { 
     if (node_) {
         node_-> release();  
         node_ = nullptr;
     }  
-}
-
-auto Variable::forward(Context context) const -> Node* {
-    if (!node_) {    
-        node_ = Graph::allocate(context);
-        node_-> acquire();
-    }
-    return node_;
-}
-
-void Variable::initialize(Context context) const {
-    assert(!node_);
-    node_ = Graph::allocate(context);
-    node_->acquire();    
 }
 
 }

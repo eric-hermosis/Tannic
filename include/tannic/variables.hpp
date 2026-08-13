@@ -25,6 +25,7 @@ class Node;
 
 class Variable {
 public: 
+
     constexpr Variable() = default;
     
     constexpr ~Variable() { 
@@ -59,16 +60,16 @@ public:
         return *this;
     }
 
-protected: 
+    [[nodiscard]] auto node() const noexcept -> Node* {
+        return node_;
+    }
 
+protected: 
     void copy(Variable const& other);
     void move(Variable & other) noexcept; 
-    void acquire(Node*);
-    void release();
-
-    auto forward(Context context) const -> Node*;
-    void initialize(Context context) const;
-
+    void acquire(Node*) const noexcept;
+    void release() const noexcept;   
+    
 private:    
     mutable Node* node_ = nullptr;
 };
