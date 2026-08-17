@@ -27,10 +27,15 @@ template<class Functor, class... Arguments>
 class Function : public Expression<Functor, Arguments...> {
 public:   
     constexpr Function(Functor functor, Arguments const&... arguments)
-    :   Expression<Functor, Arguments...>(functor, arguments...)
-        type_(Type::infer<Functor>(arguments.type()...))
-        layout_(Layout::infer<Functor>(arguments.layout()...))
-    {}
+    :   Expression<Functor, Arguments...>(functor, arguments...) {
+        if constexpr ((requires { operands.type(); } && ...)) {
+            type_ = Type::infer<Operator>(operands.type()...);
+        }
+
+        if constexpr ((requires { operands.layout(); } && ...)) {
+            layout_ = Layout::infer<Operator>(operands.layout()...);
+        }
+    }
 
     [[nodiscard]] constexpr auto type() const -> Type const& {
         return type_;

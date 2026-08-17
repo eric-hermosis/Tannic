@@ -14,20 +14,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 #ifndef VARIABLES_HPP_0x45524943
 #define VARIABLES_HPP_0x45524943
 
-#include <tannic/context.hpp> 
+#include <tannic/symbols.hpp>
+#include <tannic/expressions.hpp>
 
-namespace tannic {
-
-class Node;
+namespace tannic::expressions {
 
 class Variable {
-public: 
-
+public:
     constexpr Variable() = default;
-    
+
     constexpr ~Variable() { 
         if !consteval { 
             release(); 
@@ -43,7 +42,7 @@ public:
     constexpr Variable(Variable && other) noexcept { 
         if !consteval { 
             move(other); 
-        }
+        } 
     }
 
     constexpr auto operator=(Variable const& other) { 
@@ -53,25 +52,40 @@ public:
         return *this; 
     }
 
-    constexpr auto operator=(Variable && other) noexcept { 
+    constexpr auto operator=(Variable && other) noexcept {
         if !consteval { 
             move(other);  
         } 
-        return *this;
+        return *this; 
     }
 
-    [[nodiscard]] auto node() const noexcept -> Node* {
-        return node_;
+    constexpr auto symbol(this auto && self) -> Symbol {
+        return Symbol(self);
+    } 
+
+    auto forward() const -> Vertex const& {
+        if(!vertex_) {
+            vertex_ = Vertex(symbol()); 
+        }
+        vertex_.acquire(); 
+        return vertex_;
     }
 
-protected: 
-    void copy(Variable const& other);
-    void move(Variable & other) noexcept; 
-    void acquire(Node*) const noexcept;
-    void release() const noexcept;   
-    
-private:    
-    mutable Node* node_ = nullptr;
+    void backward() const {
+        if (vertex_) { 
+            vertex_.release();
+        }
+    }
+
+    void acquire() const noexcept;
+    void release() const noexcept;
+
+protected:
+    void copy(Variable const& other) const;
+    void move(Variable & other) const noexcept;
+
+private:
+    mutable Vertex vertex_;
 };
 
 }

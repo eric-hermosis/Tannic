@@ -19,15 +19,14 @@
 
 #include <tannic/types.hpp>
 #include <tannic/layouts.hpp>
-#include <tannic/symbols.hpp>  
+#include <tannic/symbols.hpp>   
+#include <tannic/expressions.hpp> 
 #include <tannic/variables.hpp>
-#include <tannic/expressions.hpp>  
 
 namespace tannic::expressions {
-   
+
 class Tensor : public Variable {
 public: 
-
     constexpr Tensor() 
     :   type_(unknown) {}
 
@@ -46,22 +45,22 @@ public:
     :   type_(expression.type())
     ,   layout_(expression.layout()) {
         if !consteval { 
-            Context context(Scope::Local);
-            auto node = expression.forward(context);
-            acquire(node);
+               
         }
     }
 
     constexpr auto operator=(Composable auto const& expression) -> Tensor& {
         type_   = expression.type();
         layout_ = expression.layout();         
-        if !consteval { 
-            Context context(Scope::Local);
-            auto node = expression.forward(context);
-            acquire(node);
+        if !consteval {  
+
         }
         return *this;
     } 
+
+    [[nodiscard]] constexpr auto symbol() const -> Symbol {
+        return Symbol(*this);
+    }
 
     [[nodiscard]] constexpr auto type() const -> Type const& {
         return type_;
@@ -69,23 +68,11 @@ public:
 
     [[nodiscard]] constexpr auto layout() const -> Layout const& {
         return layout_;
-    } 
-
-    auto forward(Context const& context) const -> Node* {
-        if (!node()) {
-            initialize(context);
-        }
-        return node();
-    } 
-
-    void initialize(Context const& context = Context(Scope::Local)) const {
-        auto node = Graph::allocate(context); 
-        acquire(node);
-    }
-
-private:
+    }  
+ 
+private: 
     Type type_;
-    Layout layout_;   
+    Layout layout_;    
 };
 
 template<>

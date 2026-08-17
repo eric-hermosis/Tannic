@@ -13,41 +13,39 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
-#ifndef CONTEXT_HPP_0x45524943
-#define CONTEXT_HPP_0x45524943
+//
+#ifndef GRAPHS_HPP_0x45524943
+#define GRAPHS_HPP_0x45524943
 
-namespace tannic {
+#include <cstdint>
+#include <cstddef>
+#include <vector>
 
-enum class Scope {
-    Local, 
-    Global
-};
-
-class State {
+namespace tannic {  
+ 
+class Symbol;
+ 
+class Node {
 public:
-    using Index = std::size_t; 
-    State(Index index, Scope scope);
-    [[nodiscard]] auto index() const noexcept -> Index;
-    [[nodiscard]] auto scope() const noexcept -> Scope; 
-    void acquire() noexcept;
-    void release() noexcept;
+    using Index = std::size_t;
+    using Body = struct node_t;
 
+    Node(Index index);
+    void bump();
+    bool dump();
+    void link(Node* other);
+    void prune();
+    void set(Symbol const& symbol);
+    void reset();
+
+    [[nodiscard]] auto index() const -> Index; 
 private:
-    Index index_;
-    Scope scope_;
+    Index index_; 
+    Body* body_ = nullptr;
+    std::uint32_t links_;
+    std::vector<Node*> sources_;
 };
 
-class Context {
-public:
-    using Index = State::Index;
-    Context(Scope scope);
-    [[nodiscard]] auto allocate() const noexcept -> State*;  
-    [[nodiscard]] auto scope() const noexcept -> Scope;
+}
 
-private:    
-    Scope scope_;
-};
-
-} 
 #endif

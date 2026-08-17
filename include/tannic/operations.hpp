@@ -27,10 +27,16 @@ template<class Operator, class... Operands>
 class Operation : public Expression<Operator, Operands...>{
 public:  
     constexpr Operation(Operands const&... operands)
-    :   Expression<Operator, Operands...>({}, operands...),
-        type_(Type::infer<Operator>(operands.type()...)),
-        layout_(Layout::infer<Operator>(operands.layout()...))
-    {} 
+    :   Expression<Operator, Operands...>({}, operands...) {
+        
+        if constexpr ((requires { operands.type(); } && ...)) {
+            type_ = Type::infer<Operator>(operands.type()...);
+        }
+
+        if constexpr ((requires { operands.layout(); } && ...)) {
+            layout_ = Layout::infer<Operator>(operands.layout()...);
+        }
+    } 
 
     [[nodiscard]] constexpr auto type() const -> Type const& {
         return type_;

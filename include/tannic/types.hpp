@@ -222,10 +222,8 @@ constexpr auto promote(type first, type second) -> type {
     }
 };
 
-class Type {
-    
-public:
-    
+class Type { 
+public: 
     constexpr Type() noexcept
     :   type_(unknown) {}
 

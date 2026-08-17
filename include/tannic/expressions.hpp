@@ -17,55 +17,83 @@
 #ifndef EXPRESSIONS_HPP_0x45524943
 #define EXPRESSIONS_HPP_0x45524943
  
-#include <tuple> 
-#include <type_traits> 
-#include <tannic/context.hpp>
-#include <tannic/graph.hpp>
+#include <tuple>  
+#include <concepts>
+#include <type_traits>  
 
 namespace tannic {
-  
+
+class Node;
 class Type;
 class Layout;
-  
+class Symbol;
+ 
 } namespace tannic::expressions {
-    
-template<class Expression>
-concept Composable = requires(Expression const& expression) {
-    { expression.type()   } -> std::same_as<Type const&>;
-    { expression.layout() } -> std::same_as<Layout const&>;
-};  
-
+ 
 template<class Expression>
 class Trait {
 public:
     using type = typename std::decay<Expression>::type;
 };
  
+class Vertex {
+public:
+    constexpr Vertex() = default;
+
+    Vertex(Symbol const& symbol);
+    operator bool() noexcept;
+    bool operator==(Vertex const& other) const noexcept;
+    
+    void succeed(Vertex const& other); 
+    void precede(Vertex const& other);
+     
+    void acquire() noexcept;
+    void release() noexcept;
+    
+private: 
+    Node* node_ = nullptr;
+};
+
+template<class Expression>
+concept Composable = requires(Expression const& expression) {
+    { expression.forward()  } -> std::same_as<Vertex const&>; 
+    { expression.backward() };
+};  
+      
 template<class Symbol, class ... Expressions>
 class Expression {
-public: 
+public:  
+
     constexpr Expression(Symbol symbol, Expressions const& ... sources) 
     :   symbol_(symbol)
     ,   sources_(sources...) {} 
 
-    constexpr auto symbol() -> Symbol const& {
+    constexpr auto symbol() const -> Symbol const& {
         return symbol_;
-    }
+    }  
 
-    template<typename Self>
-    auto forward(this Self&& self, Context context) -> Node* {
-        if(!self.node_) {
-            self.node_ = Graph::allocate(context);    
-            template for (auto const& source : self.sources_) {
-                auto node = source.forward(context);
-                self.node_->link(node);
+    auto forward() const -> Vertex const& {
+        if(!vertex_) {
+            vertex_ = Vertex(symbol());
+            vertex_.acquire();
+            template for (auto const& source : sources_) {
+                vertex_.succeed(source.forward());
             }
         }
-        return self.node_;
+        return vertex_;
     }
 
-private:
-    mutable Node* node_ = nullptr;
+    void backward() const {
+        if (vertex_) {
+            vertex_.release();
+            template for (auto const& source : sources_) {
+                source.backward();
+            } 
+        }
+    }
+
+private:  
+    mutable Vertex vertex_;
     std::decay<Symbol>::type symbol_;
     std::tuple<typename Trait<Expressions>::type ...> sources_;  
 };

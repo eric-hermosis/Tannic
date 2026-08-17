@@ -17,7 +17,7 @@ void print(std::ostream& stream, type type) {
     stream << traits[type].name;
 }
 
-void print(std::ostream& stream, const shape_t& shape, rank_type dimensions, bool reference = false) {
+void print(std::ostream& stream, const shape_t& shape, rank_type dimensions, bool reference = true) {
     stream << "(";
     for (rank_type dimension = 0; dimension < dimensions; ++dimension) { 
         stream << (reference ? shape.address[dimension] : shape.sizes[dimension]);
@@ -29,7 +29,7 @@ void print(std::ostream& stream, const shape_t& shape, rank_type dimensions, boo
     stream << ")"; 
 }
 
-void print(std::ostream& stream, const strides_t& strides, rank_type dimensions, bool reference = false) {
+void print(std::ostream& stream, const strides_t& strides, rank_type dimensions, bool reference = true) {
     stream << "(";
     for (rank_type dimension = 0; dimension < dimensions; ++dimension) { 
         stream << (reference ? strides.address[dimension] : strides.sizes[dimension]);
@@ -50,14 +50,14 @@ auto operator<<(std::ostream& stream, Type type) -> std::ostream&{
 auto operator<<(std::ostream& stream, Shape const& shape) -> std::ostream&{
     shape_t printable { .address = shape.address() };
     stream << "Shape"; 
-    io::print(stream, printable, shape.size(), true);
+    io::print(stream, printable, shape.size());
     return stream;
 } 
 
 auto operator<<(std::ostream& stream, Strides const& strides) -> std::ostream& {
     strides_t printable { .address = strides.address() };
     stream << "Strides"; 
-    io::print(stream, printable, strides.size(), true);
+    io::print(stream, printable, strides.size());
     return stream;
 } 
 
