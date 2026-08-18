@@ -26,8 +26,8 @@ namespace tannic {
 class Node;
 class Type;
 class Layout;
-class Symbol;
- 
+class Symbol; 
+
 } namespace tannic::expressions {
  
 template<class Expression>
@@ -46,14 +46,14 @@ public:
     
     void succeed(Vertex const& other); 
     void precede(Vertex const& other);
-     
+      
     void acquire() noexcept;
     void release() noexcept;
     
 private: 
     Node* node_ = nullptr;
 };
-
+  
 template<class Expression>
 concept Composable = requires(Expression const& expression) {
     { expression.forward()  } -> std::same_as<Vertex const&>; 
@@ -84,11 +84,11 @@ public:
     }
 
     void backward() const {
-        if (vertex_) {
-            vertex_.release();
+        if (vertex_) { 
             template for (auto const& source : sources_) {
                 source.backward();
             } 
+            vertex_.release();
         }
     }
 

@@ -45,7 +45,7 @@ public:
     :   type_(expression.type())
     ,   layout_(expression.layout()) {
         if !consteval { 
-               
+            
         }
     }
 
@@ -57,10 +57,6 @@ public:
         }
         return *this;
     } 
-
-    [[nodiscard]] constexpr auto symbol() const -> Symbol {
-        return Symbol(*this);
-    }
 
     [[nodiscard]] constexpr auto type() const -> Type const& {
         return type_;

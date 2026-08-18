@@ -61,8 +61,8 @@ public:
 
     constexpr auto symbol(this auto && self) -> Symbol {
         return Symbol(self);
-    } 
-
+    }  
+    
     auto forward() const -> Vertex const& {
         if(!vertex_) {
             vertex_ = Vertex(symbol()); 

@@ -1,8 +1,7 @@
 #include <stack>
 #include <vector>
 #include <cassert>
-#include <tannic/graphs.hpp>
-#include <tannic/symbols.hpp>
+#include <tannic/graphs.hpp> 
 #include <tannic/expressions.hpp> 
 
 namespace tannic::expressions {
@@ -32,7 +31,7 @@ Vertex::operator bool() noexcept {
 bool Vertex::operator==(Vertex const& other) const noexcept {
     return node_ == other.node_;
 }
-
+ 
 void Vertex::acquire() noexcept {
     assert(node_);
     node_->bump();

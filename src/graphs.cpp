@@ -1,6 +1,8 @@
 #include <cassert>
 #include <utility> 
 #include <tannic/symbols.hpp>
+#include <tannic/types.hpp>
+#include <tannic/layouts.hpp>
 #include <tannic/graphs.hpp>
 
 #include <iostream>
@@ -39,17 +41,11 @@ auto Node::index() const -> Index {
 } 
     
 void Node::set(Symbol const& symbol) {
-    std::cout << symbol.name() << std::endl;
-    body_ = new node_t {
-        .name = symbol.name().data()
-    };
+    tag_ = symbol.name();   
 }
 
-void Node::reset() {
-    std::cout << "Deletion!" << std::endl;
-    assert(body_);
-    delete body_;
-    body_ = nullptr;
+void Node::reset() {  
+    tag_ = std::string_view{};
 }
 
 }

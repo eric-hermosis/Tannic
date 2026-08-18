@@ -504,7 +504,7 @@ class Layout {
 public:
 
     constexpr Layout()
-    :   size_(0)
+    :   size_(1)
     ,   offset_(0) {}
 
     constexpr Layout(Shape const& shape, index_type offset = 0) 

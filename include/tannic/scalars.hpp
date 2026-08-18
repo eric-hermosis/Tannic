@@ -13,38 +13,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-#ifndef GRAPHS_HPP_0x45524943
-#define GRAPHS_HPP_0x45524943
+// 
 
-#include <cstdint>
-#include <cstddef>
-#include <vector>
+#ifndef SCALARS_HPP_0x45524943
+#define SCALARS_HPP_0x45524943
 
-namespace tannic {  
+#include <tannic/types.hpp>
 
-class Symbol;
-class Layout;
-class Type;
-   
-class Node {
-public:
-    using Index = std::size_t; 
+namespace tannic {
 
-    Node(Index index);
-    void bump();
-    bool dump();
-    void link(Node* other);
-    void prune();
-    void set(Symbol const& symbol);
-    void reset();
+class Scalar { 
 
-    [[nodiscard]] auto index() const -> Index; 
 private:
-    Index index_;   
-    std::uint32_t links_;
-    std::vector<Node*> sources_;
-    std::string_view tag_;
+    Type type_;
 };
 
 }

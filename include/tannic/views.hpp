@@ -33,6 +33,7 @@ public:
     template<class ... Indexes>
     constexpr View(Source const& source, Indexes ... indexes) 
     :   Expression<Slice, Source>({}, source) {  
+        
         if constexpr (requires { source.type(); }) {
             type_ = source.type();
         }
