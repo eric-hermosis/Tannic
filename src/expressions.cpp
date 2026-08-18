@@ -21,6 +21,7 @@ Vertex::Vertex(Symbol const& symbol) {
         node_ = local.free.top();
         local.free.pop();
     }
+    node_->acquire();
     node_->set(symbol);
 }
 
@@ -41,7 +42,7 @@ void Vertex::release() noexcept {
     assert(node_);
     if (node_->dump()) {
         node_->prune();
-        node_->reset();
+        node_->release();
         local.free.push(node_);
         node_ = nullptr;
     } 
@@ -58,5 +59,13 @@ void Vertex::precede(Vertex const& other) {
     assert(other.node_);
     other.node_->link(node_);
 }
+
+void Vertex::set(Type const& type) noexcept {
+    node_->set(type);
+}
+
+void Vertex::set(Layout const& layout) noexcept {
+    node_->set(layout);
+} 
 
 }

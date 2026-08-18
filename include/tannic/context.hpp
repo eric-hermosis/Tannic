@@ -14,28 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // 
+#ifndef CONTEXT_HPP_0x45524943
+#define CONTEXT_HPP_0x45524943
 
-#ifndef ENVIRONMENTS_HPP_0x45524943 
-#define ENVIRONMENTS_HPP_0x45524943  
- 
-#include <variant>   
-#include <string_view>
+#include <tannic/environments.hpp>
 
-namespace tannic { 
- 
-class Host {};  
-class Device {};
+namespace tannic {
 
-class Environment {
-    public: 
-    Environment() = default; 
-    Environment(Host const& host);
-    operator bool() const noexcept;
+class Context {
+public:
+    Context() = default; 
+    void set(Environment const& environment) noexcept;
 
-    private:
-    std::variant<std::monostate, Host> domain_;
+private:
+    Environment environment_;
 };
 
-} 
+}
 
 #endif

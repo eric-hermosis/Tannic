@@ -7,12 +7,14 @@
  
 using namespace tannic;
 using expressions::Variable;
+using expressions::Vertex;
 
 int main() {
     Variable x; x.acquire();
     Variable y; y.acquire();
     Variable z; z.acquire();
     auto expr = x*y + y*z + z*x;
-    auto vertex = expr.forward(); 
+    auto source = expr.forward(); 
+    auto target = Vertex(Variable{});
     expr.backward();
 }

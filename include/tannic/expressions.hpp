@@ -16,17 +16,19 @@
 // 
 #ifndef EXPRESSIONS_HPP_0x45524943
 #define EXPRESSIONS_HPP_0x45524943
- 
+
+#include <iostream>
 #include <tuple>  
 #include <concepts>
 #include <type_traits>  
+#include <tannic/context.hpp>
 
 namespace tannic {
 
 class Node;
 class Type;
 class Layout;
-class Symbol; 
+class Symbol;  
 
 } namespace tannic::expressions {
  
@@ -45,25 +47,36 @@ public:
     bool operator==(Vertex const& other) const noexcept;
     
     void succeed(Vertex const& other); 
-    void precede(Vertex const& other);
+    void precede(Vertex const& other); 
       
     void acquire() noexcept;
     void release() noexcept;
     
+    void set(Type const& type) noexcept;
+    void set(Layout const& layout) noexcept; 
 private: 
     Node* node_ = nullptr;
 };
   
 template<class Expression>
+concept Typed = requires(Expression const& expression) {
+    { expression.type() } -> std::same_as<Type const&>;
+};
+
+template<class Expression>
+concept Ranked = requires(Expression const& expression) {
+    { expression.layout() } -> std::same_as<Layout const&>;
+};
+      
+template<class Expression>
 concept Composable = requires(Expression const& expression) {
     { expression.forward()  } -> std::same_as<Vertex const&>; 
     { expression.backward() };
 };  
-      
+ 
 template<class Symbol, class ... Expressions>
 class Expression {
-public:  
-
+public:   
     constexpr Expression(Symbol symbol, Expressions const& ... sources) 
     :   symbol_(symbol)
     ,   sources_(sources...) {} 
@@ -72,23 +85,34 @@ public:
         return symbol_;
     }  
 
-    auto forward() const -> Vertex const& {
-        if(!vertex_) {
-            vertex_ = Vertex(symbol());
-            vertex_.acquire();
-            template for (auto const& source : sources_) {
-                vertex_.succeed(source.forward());
+    template<class Self>
+    auto forward(this Self&& self) -> Vertex const& { 
+        if(!self.vertex_) {
+            self.vertex_ = Vertex(self.symbol());   
+            self.vertex_.acquire();
+
+            if constexpr (Typed<Self>) {
+                self.vertex_.set(self.type());
+            }
+
+            if constexpr (Ranked<Self>) {
+                self.vertex_.set(self.layout());
+            } 
+            
+            template for (auto const& source : self.sources_) {
+                self.vertex_.succeed(source.forward());
             }
         }
-        return vertex_;
+        return self.vertex_;
     }
 
-    void backward() const {
-        if (vertex_) { 
-            template for (auto const& source : sources_) {
+    template<class Self>
+    void backward(this Self&& self) {
+        if (self.vertex_) { 
+            template for (auto const& source : self.sources_) {
                 source.backward();
-            } 
-            vertex_.release();
+            }  
+            self.vertex_.release();
         }
     }
 

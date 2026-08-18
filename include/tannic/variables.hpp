@@ -20,6 +20,7 @@
 
 #include <tannic/symbols.hpp>
 #include <tannic/expressions.hpp>
+#include <tannic/context.hpp>
 
 namespace tannic::expressions {
 
@@ -58,22 +59,42 @@ public:
         } 
         return *this; 
     }
+ 
+  
+    constexpr Variable(Composable auto const& expression) {   
+        
+    }
+ 
+    constexpr auto operator=(Composable auto const& expression) -> Variable& {   
+        return *this;
+    }
 
     constexpr auto symbol(this auto && self) -> Symbol {
         return Symbol(self);
-    }  
+    } 
     
-    auto forward() const -> Vertex const& {
-        if(!vertex_) {
-            vertex_ = Vertex(symbol()); 
+
+    template<class Self>
+    auto forward(this Self&& self) -> Vertex const& {
+        if(!self.vertex_) {
+            self.vertex_ = Vertex(self.symbol());   
+            
+            if constexpr (Typed<Self>) {
+                self.vertex_.set(self.type());
+            }
+
+            if constexpr (Ranked<Self>) {
+                self.vertex_.set(self.layout());
+            }
         }
-        vertex_.acquire(); 
-        return vertex_;
+        self.vertex_.acquire(); 
+        return self.vertex_;
     }
 
-    void backward() const {
-        if (vertex_) { 
-            vertex_.release();
+    template<class Self>
+    void backward(this Self&& self) {
+        if (self.vertex_) { 
+            self.vertex_.release();
         }
     }
 

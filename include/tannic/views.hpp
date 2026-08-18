@@ -26,7 +26,7 @@ namespace tannic::expressions {
 struct Slice {};
 
 template<class Symbol, class Source> class View;
-
+  
 template<class Source>
 class View<Slice, Source> : public Expression<Slice, Source> {
 public:  
@@ -34,11 +34,11 @@ public:
     constexpr View(Source const& source, Indexes ... indexes) 
     :   Expression<Slice, Source>({}, source) {  
         
-        if constexpr (requires { source.type(); }) {
+        if constexpr (Typed<Source>) {
             type_ = source.type();
         }
 
-        if constexpr (requires { source.layout(); }) {
+        if constexpr (Ranked<Source>) {
             auto dimension = 0;    
             auto offset = source.layout().offset();
 

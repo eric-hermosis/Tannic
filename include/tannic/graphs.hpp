@@ -30,21 +30,25 @@ class Type;
 class Node {
 public:
     using Index = std::size_t; 
+    using Body = struct node_t;
 
     Node(Index index);
     void bump();
     bool dump();
     void link(Node* other);
     void prune();
-    void set(Symbol const& symbol);
-    void reset();
+    void acquire() noexcept;
+    void set(Symbol const& symbol) noexcept;
+    void set(Type const& type) noexcept;
+    void set(Layout const& layout) noexcept;
+    void release() noexcept;
 
     [[nodiscard]] auto index() const -> Index; 
 private:
     Index index_;   
+    Body* body_ = nullptr;
     std::uint32_t links_;
     std::vector<Node*> sources_;
-    std::string_view tag_;
 };
 
 }

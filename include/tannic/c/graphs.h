@@ -13,29 +13,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
-
-#ifndef ENVIRONMENTS_HPP_0x45524943 
-#define ENVIRONMENTS_HPP_0x45524943  
+//
+#ifndef GRAPHS_H_0x45524943
+#define GRAPHS_H_0x45524943 
  
-#include <variant>   
-#include <string_view>
+#include <tannic/c/types.h>
+#include <tannic/c/layouts.h>
 
-namespace tannic { 
- 
-class Host {};  
-class Device {};
+#ifdef __cplusplus 
+namespace tannic {
+#endif 
 
-class Environment {
-    public: 
-    Environment() = default; 
-    Environment(Host const& host);
-    operator bool() const noexcept;
-
-    private:
-    std::variant<std::monostate, Host> domain_;
+struct node_t {
+    const char* name;
+    enum type type;
+    struct layout_t layout;
 };
 
-} 
-
+#ifdef __cplusplus 
+}
+#endif 
 #endif

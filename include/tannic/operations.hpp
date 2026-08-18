@@ -21,19 +21,19 @@
 #include <tannic/layouts.hpp>
 #include <tannic/expressions.hpp>
 
-namespace tannic::expressions {
-  
+namespace tannic::expressions { 
+
 template<class Operator, class... Operands>
 class Operation : public Expression<Operator, Operands...>{
 public:  
     constexpr Operation(Operands const&... operands)
     :   Expression<Operator, Operands...>({}, operands...) {
-        
-        if constexpr ((requires { operands.type(); } && ...)) {
+         
+        if constexpr ((Typed<Operands> && ...)) {
             type_ = Type::infer<Operator>(operands.type()...);
         }
 
-        if constexpr ((requires { operands.layout(); } && ...)) {
+        if constexpr ((Ranked<Operands> && ...)) {
             layout_ = Layout::infer<Operator>(operands.layout()...);
         }
     } 
