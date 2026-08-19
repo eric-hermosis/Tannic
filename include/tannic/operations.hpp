@@ -27,13 +27,10 @@ template<class Operator, class... Operands>
 class Operation : public Expression<Operator, Operands...>{
 public:  
     constexpr Operation(Operands const&... operands)
-    :   Expression<Operator, Operands...>({}, operands...) {
-         
-        if constexpr ((Typed<Operands> && ...)) {
-            type_ = Type::infer<Operator>(operands.type()...);
-        }
-
-        if constexpr ((Ranked<Operands> && ...)) {
+    :   Expression<Operator, Operands...>({}, operands...) { 
+        
+        if constexpr ((Describable<Operands> && ...)) {
+            type_ = Type::infer<Operator>(operands.type()...); 
             layout_ = Layout::infer<Operator>(operands.layout()...);
         }
     } 

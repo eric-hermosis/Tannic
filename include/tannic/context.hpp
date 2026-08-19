@@ -23,11 +23,7 @@ namespace tannic {
 
 class Context {
 public:
-    Context() = default; 
-    void set(Environment const& environment) noexcept;
 
-private:
-    Environment environment_;
 };
 
 }

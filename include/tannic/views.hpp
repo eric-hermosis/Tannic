@@ -32,13 +32,11 @@ class View<Slice, Source> : public Expression<Slice, Source> {
 public:  
     template<class ... Indexes>
     constexpr View(Source const& source, Indexes ... indexes) 
-    :   Expression<Slice, Source>({}, source) {  
-        
-        if constexpr (Typed<Source>) {
-            type_ = source.type();
-        }
+    :   Expression<Slice, Source>({}, source) {   
 
-        if constexpr (Ranked<Source>) {
+        if constexpr (Describable<Source>) {
+            type_ = source.type();
+            
             auto dimension = 0;    
             auto offset = source.layout().offset();
 
@@ -77,8 +75,7 @@ public:
             layout_ = Layout(shape, strides, offset);
         }
     }
-
-
+ 
     [[nodiscard]] constexpr auto type() const -> Type const& {
         return type_;
     }

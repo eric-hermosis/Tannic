@@ -37,46 +37,60 @@ class Trait {
 public:
     using type = typename std::decay<Expression>::type;
 };
+
+class Index {
+public: 
+    constexpr Index() = default;
+
+    constexpr Index(std::size_t value)
+    :   value_(value) {}
+
+    [[nodiscard]] constexpr auto value() const noexcept -> std::size_t {
+        return value_;
+    }
+
+    auto forward() noexcept -> Index {
+        return Index(++value_);
+    } 
+
+private:   
+    std::size_t value_ = 0;
+};
  
 class Vertex {
-public:
+public: 
     constexpr Vertex() = default;
 
-    Vertex(Symbol const& symbol);
     operator bool() noexcept;
     bool operator==(Vertex const& other) const noexcept;
     
     void succeed(Vertex const& other); 
     void precede(Vertex const& other); 
-      
+       
     void acquire() noexcept;
-    void release() noexcept;
-    
-    void set(Type const& type) noexcept;
-    void set(Layout const& layout) noexcept; 
+    void release() noexcept; 
+    void set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept;
+
 private: 
     Node* node_ = nullptr;
-};
-  
-template<class Expression>
-concept Typed = requires(Expression const& expression) {
-    { expression.type() } -> std::same_as<Type const&>;
-};
-
-template<class Expression>
-concept Ranked = requires(Expression const& expression) {
-    { expression.layout() } -> std::same_as<Layout const&>;
-};
+};  
       
 template<class Expression>
-concept Composable = requires(Expression const& expression) {
-    { expression.forward()  } -> std::same_as<Vertex const&>; 
+concept Composable = requires(Expression const& expression, Index& index) {
+    { expression.forward(index)  } -> std::same_as<Vertex const&>; 
     { expression.backward() };
 };  
+
+template<class Expression>
+concept Describable = requires(Expression const& expression) {
+    { expression.symbol() } -> std::convertible_to<Symbol>;
+    { expression.type()   } -> std::same_as<Type const&>;
+    { expression.layout() } -> std::same_as<Layout const&>;
+};
  
 template<class Symbol, class ... Expressions>
 class Expression {
-public:   
+public:      
     constexpr Expression(Symbol symbol, Expressions const& ... sources) 
     :   symbol_(symbol)
     ,   sources_(sources...) {} 
@@ -84,43 +98,47 @@ public:
     constexpr auto symbol() const -> Symbol const& {
         return symbol_;
     }  
-
-    template<class Self>
-    auto forward(this Self&& self) -> Vertex const& { 
-        if(!self.vertex_) {
-            self.vertex_ = Vertex(self.symbol());   
-            self.vertex_.acquire();
-
-            if constexpr (Typed<Self>) {
-                self.vertex_.set(self.type());
-            }
-
-            if constexpr (Ranked<Self>) {
-                self.vertex_.set(self.layout());
-            } 
-            
+    
+    constexpr auto const& sources() const {
+        return sources_;
+    }       
+ 
+    auto forward(this auto&& self, Index& index) -> Vertex const& {  
+        if(!self.vertex_) {   
+            self.vertex_.acquire(); 
+            self.vertex_.set(self.symbol(), self.type(), self.layout());
             template for (auto const& source : self.sources_) {
-                self.vertex_.succeed(source.forward());
-            }
+                self.vertex_.succeed(source.forward(index));
+            }   
+            self.index_ = index.forward(); 
         }
         return self.vertex_;
     }
-
-    template<class Self>
-    void backward(this Self&& self) {
-        if (self.vertex_) { 
+ 
+    void backward(this auto&& self) {
+        if (self.vertex_) {  
             template for (auto const& source : self.sources_) {
                 source.backward();
             }  
+            self.index_ = Index();
             self.vertex_.release();
         }
     }
 
-private:  
+    [[nodiscard]] auto index() const noexcept -> Index const& {
+        return index_;
+    }
+
+    [[nodiscard]] auto vertex() const noexcept -> Vertex const& {
+        return vertex_;
+    }
+
+private:   
+    mutable Index index_;
     mutable Vertex vertex_;
     std::decay<Symbol>::type symbol_;
     std::tuple<typename Trait<Expressions>::type ...> sources_;  
-};
+}; 
 
 }   
 

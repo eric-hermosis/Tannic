@@ -19,10 +19,21 @@
 #define SCALARS_HPP_0x45524943
 
 #include <tannic/types.hpp>
+#include <tannic/layouts.hpp>
 
-namespace tannic {
+namespace tannic::expressions {
 
 class Scalar { 
+public:
+
+    constexpr auto type() const noexcept -> Type const& {
+        return type_;
+    }
+
+    constexpr auto layout() const noexcept -> Layout const& {
+        constexpr static auto layout = Layout();
+        return layout;
+    }
 
 private:
     Type type_;

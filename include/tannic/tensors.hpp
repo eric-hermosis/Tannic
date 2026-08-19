@@ -39,24 +39,7 @@ public:
 
     constexpr Tensor(Type const& type, Shape const& shape, Strides const& strides)
     :   type_(type)
-    ,   layout_(shape, strides) {}
-
-    constexpr Tensor(Composable auto const& expression) 
-    :   type_(expression.type())
-    ,   layout_(expression.layout()) {
-        if !consteval { 
-            
-        }
-    }
-
-    constexpr auto operator=(Composable auto const& expression) -> Tensor& {
-        type_   = expression.type();
-        layout_ = expression.layout();         
-        if !consteval {  
-
-        }
-        return *this;
-    } 
+    ,   layout_(shape, strides) {} 
 
     [[nodiscard]] constexpr auto type() const -> Type const& {
         return type_;

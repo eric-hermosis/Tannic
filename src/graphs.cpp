@@ -12,9 +12,8 @@
 
 namespace tannic { 
     
-Node::Node(Index index)
-:   index_(index)
-,   links_(0) {
+Node::Node()
+:   links_(0) {
     sources_.reserve(4);
 }
 
@@ -33,11 +32,7 @@ void Node::link(Node* source) {
 
 void Node::prune() {
     sources_.clear();
-}
-
-auto Node::index() const -> Index {
-    return index_;
-}  
+} 
 
 static thread_local struct { 
     std::stack<node_t> arena;
@@ -52,42 +47,38 @@ void Node::acquire() noexcept {
     else {
         body_ = local.free.top();
         local.free.pop();
+    } 
+}
+
+void Node::set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept { 
+    assert(body_);
+    shape_t shape;
+    strides_t strides;
+
+    for (auto dimension = 0; dimension < layout.rank(); dimension++) {
+        shape.sizes[dimension] = layout.size(dimension);
+        strides.sizes[dimension] = layout.stride(dimension);
     }
 
     new (body_) node_t {
-        .name = "Unknown",
-        .type = unknown,
+        .name = symbol.name().data(),
+        .type = type,
         .layout {
-            .rank = 0,
-            .size = 1
+            .rank = layout.rank(),
+            .size = layout.size(),
+            .shape = shape,
+            .strides = strides
         }
     };
 }
 
-void Node::set(Symbol const& symbol) noexcept {
-    body_->name = symbol.name().data();
-}
-
-void Node::set(Type const& type) noexcept {
-    body_->type = type;
-}
-
-void Node::set(Layout const& layout) noexcept { 
-
-    body_->layout = layout_t {
-        .rank = layout.rank(),
-        .size = layout.size()
-    };
- 
-    for (auto index = 0; index < layout.rank(); index++) {
-        body_->layout.shape.sizes[index] = layout.size(index);
-        body_->layout.strides.sizes[index] = layout.stride(index);
-    }
-}
-
+void Node::reset() noexcept {
+    new (body_) node_t{};
+} 
+  
 void Node::release() noexcept {    
     local.free.push(body_);
-    body_ = nullptr;
+    body_ = nullptr; 
 }
 
 }

@@ -58,48 +58,38 @@ public:
             move(other);  
         } 
         return *this; 
-    }
- 
-  
-    constexpr Variable(Composable auto const& expression) {   
-        
-    }
- 
-    constexpr auto operator=(Composable auto const& expression) -> Variable& {   
-        return *this;
-    }
-
-    constexpr auto symbol(this auto && self) -> Symbol {
-        return Symbol(self);
     } 
-    
 
-    template<class Self>
-    auto forward(this Self&& self) -> Vertex const& {
-        if(!self.vertex_) {
-            self.vertex_ = Vertex(self.symbol());   
-            
-            if constexpr (Typed<Self>) {
-                self.vertex_.set(self.type());
-            }
-
-            if constexpr (Ranked<Self>) {
-                self.vertex_.set(self.layout());
-            }
-        }
-        self.vertex_.acquire(); 
+    constexpr auto symbol(this auto && self, auto& index) -> Symbol {
+        return Symbol(self);
+    }  
+ 
+    auto forward(this auto&& self, Index&) -> Vertex const& { 
+        self.acquire(); 
+        self.vertex_.acquire();
         return self.vertex_;
     }
-
-    template<class Self>
-    void backward(this Self&& self) {
-        if (self.vertex_) { 
-            self.vertex_.release();
-        }
+ 
+    void backward(this auto&& self) {  
+        self.vertex_.release(); 
     }
 
-    void acquire() const noexcept;
-    void release() const noexcept;
+    template<class Self>
+    void acquire(this Self&& self) {
+        if(!self.vertex_) {
+            self.vertex_.acquire();
+            if constexpr (Describable<Self>) {
+                self.vertex_.set(self.symbol(), self.type(), self.layout());    
+            }
+        }  
+    }
+
+    template<class Self>
+    void release(this Self&& self) { 
+        if (self.vertex_) { 
+            self.vertex_.release();
+        } 
+    }
 
 protected:
     void copy(Variable const& other) const;
