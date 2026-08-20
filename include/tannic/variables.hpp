@@ -18,10 +18,12 @@
 #ifndef VARIABLES_HPP_0x45524943
 #define VARIABLES_HPP_0x45524943
 
+#include <iostream>
+
 #include <tannic/symbols.hpp>
 #include <tannic/expressions.hpp>
 #include <tannic/context.hpp>
-
+ 
 namespace tannic::expressions {
 
 class Variable {
@@ -64,14 +66,32 @@ public:
         return Symbol(self);
     }  
  
-    auto forward(this auto&& self, Index&) -> Vertex const& { 
-        self.acquire(); 
+    template<class Self>
+    auto forward(this Self&& self, Index& index) -> Vertex const& { 
+        if(!self.vertex_) {
+            self.vertex_.acquire();
+            if constexpr (Describable<Self>) {
+                self.vertex_.set(self.symbol(), self.type(), self.layout());    
+            }
+        }  
+ 
+        if(!self.index_) { 
+            self.index_ = index.forward(); 
+        } 
+
         self.vertex_.acquire();
         return self.vertex_;
     }
  
-    void backward(this auto&& self) {  
-        self.vertex_.release(); 
+    template<class Self>
+    void backward(this Self&& self) {  
+        if (self.index_) {
+            self.index_ = 0;
+        }
+
+        if (self.vertex_) {
+            self.vertex_.release(); 
+        } 
     }
 
     template<class Self>
@@ -91,11 +111,15 @@ public:
         } 
     }
 
+    [[nodiscard]] auto index() const noexcept -> Index const&;
+    [[nodiscard]] auto vertex() const noexcept -> Vertex const&;
+
 protected:
     void copy(Variable const& other) const;
     void move(Variable & other) const noexcept;
 
 private:
+    mutable Index index_;
     mutable Vertex vertex_;
 };
 

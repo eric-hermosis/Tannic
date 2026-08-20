@@ -30,28 +30,16 @@ class Type;
 class Layout;
 class Symbol;  
 
-} namespace tannic::expressions {
- 
-template<class Expression>
-class Trait {
-public:
-    using type = typename std::decay<Expression>::type;
-};
+} namespace tannic::expressions { 
 
 class Index {
 public: 
     constexpr Index() = default;
-
-    constexpr Index(std::size_t value)
-    :   value_(value) {}
-
-    [[nodiscard]] constexpr auto value() const noexcept -> std::size_t {
-        return value_;
-    }
-
-    auto forward() noexcept -> Index {
-        return Index(++value_);
-    } 
+    Index(std::size_t value); 
+    operator bool() const noexcept;
+    operator std::size_t() const noexcept;
+    [[nodiscard]] auto value() const noexcept -> std::size_t;
+    [[nodiscard]] auto forward() noexcept -> Index;
 
 private:   
     std::size_t value_ = 0;
@@ -60,8 +48,7 @@ private:
 class Vertex {
 public: 
     constexpr Vertex() = default;
-
-    operator bool() noexcept;
+    operator bool() const noexcept;
     bool operator==(Vertex const& other) const noexcept;
     
     void succeed(Vertex const& other); 
@@ -73,7 +60,13 @@ public:
 
 private: 
     Node* node_ = nullptr;
-};  
+};   
+  
+template<class Expression>
+class Trait {
+public:
+    using type = typename std::decay<Expression>::type;
+};
       
 template<class Expression>
 concept Composable = requires(Expression const& expression, Index& index) {
@@ -87,7 +80,7 @@ concept Describable = requires(Expression const& expression) {
     { expression.type()   } -> std::same_as<Type const&>;
     { expression.layout() } -> std::same_as<Layout const&>;
 };
- 
+
 template<class Symbol, class ... Expressions>
 class Expression {
 public:      
@@ -103,7 +96,9 @@ public:
         return sources_;
     }       
  
-    auto forward(this auto&& self, Index& index) -> Vertex const& {  
+ 
+    template<class Self>
+    auto forward(this Self&& self, Index& index) -> Vertex const& {  
         if(!self.vertex_) {   
             self.vertex_.acquire(); 
             self.vertex_.set(self.symbol(), self.type(), self.layout());
@@ -115,13 +110,14 @@ public:
         return self.vertex_;
     }
  
-    void backward(this auto&& self) {
+    template<class Self>
+    void backward(this Self&& self) {
         if (self.vertex_) {  
             template for (auto const& source : self.sources_) {
                 source.backward();
-            }  
-            self.index_ = Index();
-            self.vertex_.release();
+            }   
+            self.index_ = 0;
+            self.vertex_.release();  
         }
     }
 

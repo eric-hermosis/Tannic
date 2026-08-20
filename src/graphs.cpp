@@ -79,6 +79,6 @@ void Node::reset() noexcept {
 void Node::release() noexcept {    
     local.free.push(body_);
     body_ = nullptr; 
-}
+} 
 
 }

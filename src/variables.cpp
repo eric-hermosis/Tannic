@@ -3,6 +3,14 @@
 
 namespace tannic::expressions { 
      
+auto Variable::index() const noexcept -> Index const& {
+    return index_;
+}
+
+auto Variable::vertex() const noexcept -> Vertex const& {
+    return vertex_;
+}
+
 void Variable::copy(Variable const& other) const {
     if (vertex_ != other.vertex_) {   
         if (vertex_) {

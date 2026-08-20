@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef GRAPHS_HPP_0x45524943
-#define GRAPHS_HPP_0x45524943
+#ifndef VISITORS_HPP_0x45524943
+#define VISITORS_HPP_0x45524943
 
 #include <cstdint>
 #include <cstddef>
@@ -23,29 +23,17 @@
 
 namespace tannic {  
 
-class Symbol;
-class Layout;
-class Type; 
-class Index;
- 
-class Node {
+class Visitor {
 public: 
-    using Body = struct node_t;
-
-    Node();
-    void bump();
-    bool dump();
-    void link(Node* other);
-    void prune();
-    void acquire() noexcept;
-    void set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept; 
+    void visit(std::size_t index) noexcept; 
+    bool visited(std::size_t index) const noexcept;
+    void set(std::size_t size); 
     void reset() noexcept;
-    void release() noexcept; 
-    
-private: 
-    Body* body_ = nullptr;
-    std::uint32_t links_;
-    std::vector<Node*> sources_; 
+
+private:
+    std::size_t size_;
+    std::uint32_t generation_ = 1;
+    std::vector<std::uint32_t> visits_;
 }; 
 
 }

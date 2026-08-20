@@ -20,8 +20,7 @@ set(TESTS
     test-types.cpp
     test-layouts.cpp
     test-symbols.cpp
-    test-graph.cpp
-    test-tensors.cpp
+    test-visitors.cpp
 )
 
 if (TESTS)  

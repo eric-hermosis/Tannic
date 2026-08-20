@@ -6,13 +6,32 @@
 
 namespace tannic::expressions {
  
+Index::Index(std::size_t value)
+:   value_(value) {}
+
+Index::operator bool() const noexcept {
+    return value_ != 0;
+}
+
+Index::operator std::size_t() const noexcept {
+    return value_;
+}
+
+auto Index::value() const noexcept -> std::size_t {
+    return value_;
+}
+
+auto Index::forward() noexcept -> Index {
+    return Index(++value_);
+}
+
 static thread_local struct {
     std::size_t index = 0;
     std::stack<Node> arena;
     std::stack<Node*, std::vector<Node*>> free;
 } local;
 
-Vertex::operator bool() noexcept {
+Vertex::operator bool() const noexcept {
     return node_ != nullptr;
 }
 

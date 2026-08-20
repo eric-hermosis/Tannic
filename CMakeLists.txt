@@ -10,6 +10,8 @@ set(SOURCES
     src/environments.cpp  
     src/graphs.cpp
     src/expressions.cpp
+    src/visitors.cpp
+    src/schedules.cpp
     src/variables.cpp
 )
 
