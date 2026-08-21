@@ -7,6 +7,7 @@
 #include <tannic/types.hpp>
 #include <tannic/layouts.hpp>
 #include <tannic/graphs.hpp>
+#include <tannic/environments.hpp>
 
 #include <iostream>
 
@@ -34,7 +35,7 @@ void Node::prune() {
     sources_.clear();
 } 
 
-static thread_local struct { 
+static struct { 
     std::stack<node_t> arena;
     std::stack<node_t*, std::vector<node_t*>> free;
 } local; 
@@ -75,8 +76,24 @@ void Node::set(Symbol const& symbol, Type const& type, Layout const& layout) noe
     };
 }
 
+void Node::set(Handler const& handler) noexcept { 
+    assert(body_);
+
+    new (body_) node_t {
+        .kind = COMPUTATION
+    };
+}
+
+void Node::set(Environment const& environment) noexcept { 
+    assert(body_);
+
+    new (body_) node_t {
+        .kind = ALLOCATION
+    };
+}
+
 void Node::reset() noexcept {
-    new (body_) node_t{};
+    new (body_) node_t;
 } 
   
 void Node::release() noexcept {     

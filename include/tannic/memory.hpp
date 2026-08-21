@@ -1,6 +1,0 @@
-#ifndef MEMORY_HPP_0x45524943
-#define MEMORY_HPP_0x45524943
-
-
-
-#endif

@@ -27,6 +27,7 @@ class Symbol;
 class Layout;
 class Type;  
 class Handler;
+class Environment;
 
 class Node { 
 
@@ -40,6 +41,7 @@ public:
     void acquire() noexcept;
     void set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept; 
     void set(Handler const& handler) noexcept;
+    void set(Environment const& environment) noexcept;
     void reset() noexcept;
     void release() noexcept; 
     

@@ -14,7 +14,7 @@ int main() {
     Variable z; z.acquire(); 
     {    
         Graph graph(x*y + y*z + z*x); 
-        Scheduler scheduler(graph.size());
+        Scheduler scheduler(graph.size(), Host());
         scheduler.transverse(graph.expression()); 
     } 
     

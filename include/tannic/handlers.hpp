@@ -18,13 +18,17 @@
 #define HANDLERS_HPP_0x45524943 
 
 #include <tannic/types.hpp> 
+#include <tannic/environments.hpp>
 
 namespace tannic { 
 
 class Handler {};
   
 class Handlers {
-public: 
+public:  
+    Handlers(Environment const& environment)
+    :   environment_(environment) {}
+
     template<typename Symbol, typename... Types>
     auto get(Symbol, Types const&... types) const -> Handler;
 
@@ -34,6 +38,9 @@ public:
             return Handlers::get(symbol ,types[Index]...);
         }(std::make_index_sequence<Arity>{});
     }
+
+private:    
+    Environment environment_;
 };
     
 }

@@ -10,7 +10,10 @@ static struct {
     std::stack<std::unique_ptr<Visitor>> stack;
 } visitor;
 
-Scheduler::Scheduler(std::size_t size) {
+Scheduler::Scheduler(std::size_t size, Environment const& environment)
+:   environment_(environment)
+,   handlers_(environment) {
+    
     if (visitor.stack.empty()) {
         visitor_ = std::make_unique<Visitor>();
     } 
