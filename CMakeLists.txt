@@ -11,7 +11,7 @@ set(SOURCES
     src/graphs.cpp
     src/expressions.cpp
     src/visitors.cpp
-    src/schedules.cpp
+    src/plans.cpp
     src/variables.cpp
     src/operations.cpp
 )

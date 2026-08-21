@@ -63,7 +63,6 @@ constexpr auto normalize(range_type range, size_type bound) -> range_type {
     return {.start=start, .stop=stop};
 }
 
-
 class Shape {
 public:  
     static constexpr uint8_t limit = 8;    

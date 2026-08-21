@@ -32,8 +32,8 @@ public:
 
 private:
     std::size_t size_;
-    std::uint32_t generation_ = 1;
-    std::vector<std::uint32_t> visits_;
+    std::uint64_t generation_ = 1;
+    std::vector<std::uint64_t> visits_;
 }; 
 
 }

@@ -30,10 +30,11 @@ class Environment {
     public: 
     Environment() = default; 
     Environment(Host const& host);
+    Environment(Device const& device);
     operator bool() const noexcept;
 
     private:
-    std::variant<std::monostate, Host> domain_;
+    std::variant<std::monostate, Host, Device> domain_;
 };
 
 } 

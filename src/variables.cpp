@@ -32,6 +32,5 @@ void Variable::move(Variable & other) const noexcept {
         vertex_ = std::exchange(other.vertex_, Vertex());
     }
 }
-
-
+ 
 }

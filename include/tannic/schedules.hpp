@@ -15,8 +15,8 @@
 // limitations under the License.
 // 
 
-#ifndef SCHEDULERS_HPP_0x45524943
-#define SCHEDULERS_HPP_0x45524943 
+#ifndef SCHEDULES_HPP_0x45524943
+#define SCHEDULES_HPP_0x45524943 
 
 #include <vector>
 #include <memory>
@@ -34,6 +34,11 @@ using expressions::Expression;
 using expressions::Variable;
 using expressions::Describable;
  
+class Schedule {
+public: 
+    
+};
+
 class Scheduler {
 public:  
     Scheduler(std::size_t size, Environment const& environment); 
