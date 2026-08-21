@@ -13,6 +13,7 @@ set(SOURCES
     src/visitors.cpp
     src/schedules.cpp
     src/variables.cpp
+    src/operations.cpp
 )
 
 add_library(Tannic STATIC ${SOURCES})  

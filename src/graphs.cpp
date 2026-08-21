@@ -61,14 +61,17 @@ void Node::set(Symbol const& symbol, Type const& type, Layout const& layout) noe
     }
 
     new (body_) node_t {
-        .name = symbol.name().data(),
-        .type = type,
-        .layout {
-            .rank = layout.rank(),
-            .size = layout.size(),
-            .shape = shape,
-            .strides = strides
-        }
+        .kind = EXPRESSION,
+        .expression { 
+            .name = symbol.name().data(),
+            .type = type,
+            .layout {
+                .rank = layout.rank(),
+                .size = layout.size(),
+                .shape = shape,
+                .strides = strides
+            }
+        } 
     };
 }
 
@@ -76,9 +79,9 @@ void Node::reset() noexcept {
     new (body_) node_t{};
 } 
   
-void Node::release() noexcept {    
+void Node::release() noexcept {     
     local.free.push(body_);
-    body_ = nullptr; 
+    body_ = nullptr;  
 } 
 
 }

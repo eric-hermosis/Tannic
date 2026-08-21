@@ -21,7 +21,6 @@
 #include <tuple>  
 #include <concepts>
 #include <type_traits>  
-#include <tannic/context.hpp>
 
 namespace tannic {
 
@@ -32,6 +31,12 @@ class Symbol;
 
 } namespace tannic::expressions { 
 
+template<class Expression>
+class Trait {
+public:
+    using type = typename std::decay<Expression>::type;
+};
+      
 class Index {
 public: 
     constexpr Index() = default;
@@ -61,17 +66,13 @@ public:
 private: 
     Node* node_ = nullptr;
 };   
-  
-template<class Expression>
-class Trait {
-public:
-    using type = typename std::decay<Expression>::type;
-};
-      
+   
 template<class Expression>
 concept Composable = requires(Expression const& expression, Index& index) {
-    { expression.forward(index)  } -> std::same_as<Vertex const&>; 
-    { expression.backward() };
+    { expression.forward(index)  }; 
+    { expression.backward()      };
+    { expression.vertex()   } -> std::same_as<Vertex const&>;
+    { expression.index()    } -> std::same_as<Index const&>;
 };  
 
 template<class Expression>
@@ -94,20 +95,19 @@ public:
     
     constexpr auto const& sources() const {
         return sources_;
-    }       
- 
+    }        
  
     template<class Self>
-    auto forward(this Self&& self, Index& index) -> Vertex const& {  
+    void forward(this Self&& self, Index& index) {  
         if(!self.vertex_) {   
             self.vertex_.acquire(); 
             self.vertex_.set(self.symbol(), self.type(), self.layout());
             template for (auto const& source : self.sources_) {
-                self.vertex_.succeed(source.forward(index));
+                source.forward(index);
+                self.vertex_.succeed(source.vertex());
             }   
             self.index_ = index.forward(); 
-        }
-        return self.vertex_;
+        } 
     }
  
     template<class Self>
@@ -136,6 +136,40 @@ private:
     std::tuple<typename Trait<Expressions>::type ...> sources_;  
 }; 
 
-}   
+template<Composable Expression>
+class Graph {
+public: 
+
+    Graph(Expression && expression) 
+    :   expression_(std::move(expression)) {
+        expression_.forward(index_);
+    }
+
+    ~Graph() {
+        expression_.backward();
+    } 
+
+    [[nodiscard]] auto expression() -> Expression const& {
+        return expression_;
+    }
+
+    [[nodiscard]] auto root() const noexcept -> Vertex const& {
+        return expression_.vertex();
+    }
+
+    [[nodiscard]] auto size() const noexcept -> std::size_t {
+        return index_.value();
+    } 
+
+private:
+    Index index_;
+    Expression expression_;
+};
+   
+} namespace tannic {
+
+using expressions::Graph;
+
+}
 
 #endif

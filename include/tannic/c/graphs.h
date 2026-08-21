@@ -24,10 +24,27 @@
 namespace tannic {
 #endif 
 
-struct node_t {
+enum node {
+    EXPRESSION,
+    COMPUTATION
+};
+
+struct expression_t {
     const char* name;
     enum type type;
-    struct layout_t layout;
+    struct layout_t layout; 
+};
+
+struct computation_t {
+    const char* name;
+};
+
+struct node_t {
+    enum node kind;
+    union {
+        struct expression_t  expression;
+        struct computation_t computation;
+    };
 };
 
 #ifdef __cplusplus 

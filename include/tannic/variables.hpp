@@ -48,14 +48,14 @@ public:
         } 
     }
 
-    constexpr auto operator=(Variable const& other) { 
+    constexpr Variable& operator=(Variable const& other) { 
         if !consteval { 
             copy(other); 
         } 
         return *this; 
     }
 
-    constexpr auto operator=(Variable && other) noexcept {
+    constexpr Variable& operator=(Variable && other) noexcept {
         if !consteval { 
             move(other);  
         } 
@@ -67,7 +67,7 @@ public:
     }  
  
     template<class Self>
-    auto forward(this Self&& self, Index& index) -> Vertex const& { 
+    auto forward(this Self&& self, Index& index) { 
         if(!self.vertex_) {
             self.vertex_.acquire();
             if constexpr (Describable<Self>) {
@@ -77,10 +77,9 @@ public:
  
         if(!self.index_) { 
             self.index_ = index.forward(); 
-        } 
-
-        self.vertex_.acquire();
-        return self.vertex_;
+        }  
+        
+        self.vertex_.acquire(); 
     }
  
     template<class Self>

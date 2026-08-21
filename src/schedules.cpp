@@ -6,7 +6,7 @@
 
 namespace tannic {
 
-static thread_local struct {
+static struct {
     std::stack<std::unique_ptr<Visitor>> stack;
 } visitor;
 

@@ -25,13 +25,13 @@ namespace tannic {
 
 class Symbol;
 class Layout;
-class Type; 
-class Index;
- 
-class Node {
-public: 
-    using Body = struct node_t;
+class Type;  
+class Handler;
 
+class Node { 
+
+public:  
+    using Body = struct node_t; 
     Node();
     void bump();
     bool dump();
@@ -39,11 +39,13 @@ public:
     void prune();
     void acquire() noexcept;
     void set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept; 
+    void set(Handler const& handler) noexcept;
     void reset() noexcept;
     void release() noexcept; 
     
 private: 
     Body* body_ = nullptr;
+
     std::uint32_t links_;
     std::vector<Node*> sources_; 
 }; 

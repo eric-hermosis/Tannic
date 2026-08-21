@@ -5,25 +5,17 @@
 #include <tannic/schedules.hpp>
 
 using namespace tannic;
-using expressions::Vertex;
-using expressions::Index;
 using expressions::Variable;
-using expressions::Expression;
-using expressions::Composable;
-
+using expressions::Graph; 
 
 int main() { 
     Variable x; x.acquire();
     Variable y; y.acquire();
-    Variable z; z.acquire();
-  
-    { 
-        Index index = 0;
-        auto expr = x*y + y*z + z*x; 
-        auto source = expr.forward(index);        
-        Scheduler sched(index.value());
-        sched.transverse(expr);
-        expr.backward(); 
+    Variable z; z.acquire(); 
+    {    
+        Graph graph(x*y + y*z + z*x); 
+        Scheduler scheduler(graph.size());
+        scheduler.transverse(graph.expression()); 
     } 
     
 }

@@ -25,11 +25,10 @@ auto Index::forward() noexcept -> Index {
     return Index(++value_);
 }
 
-static thread_local struct {
-    std::size_t index = 0;
+static struct { 
     std::stack<Node> arena;
     std::stack<Node*, std::vector<Node*>> free;
-} local;
+} global;
 
 Vertex::operator bool() const noexcept {
     return node_ != nullptr;
@@ -53,13 +52,13 @@ void Vertex::precede(Vertex const& other) {
 
 void Vertex::acquire() noexcept {
     if (!node_) { 
-        if (local.free.empty()) {
-            node_ = &local.arena.emplace();
+        if (global.free.empty()) {
+            node_ = &global.arena.emplace();
         }
 
         else {
-            node_ = local.free.top();
-            local.free.pop();
+            node_ = global.free.top();
+            global.free.pop();
         }
         node_->acquire();
     }
@@ -71,7 +70,7 @@ void Vertex::release() noexcept {
         node_->prune();
         node_->reset();
         node_->release();
-        local.free.push(node_);
+        global.free.push(node_);
         node_ = nullptr;
     } 
 } 

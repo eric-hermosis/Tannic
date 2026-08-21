@@ -9,24 +9,26 @@
 #include <tannic/visitors.hpp>
 #include <tannic/expressions.hpp>
 #include <tannic/variables.hpp>
+#include <tannic/types.hpp>
+#include <tannic/handlers.hpp>
 
 namespace tannic {
 
 using expressions::Index;
 using expressions::Expression;
 using expressions::Variable;
+using expressions::Describable;
  
 class Scheduler {
 public:  
     Scheduler(std::size_t size); 
     ~Scheduler();
     Scheduler(Scheduler const& other) = delete;
-    Scheduler(Scheduler && other) noexcept = delete;
-    auto operator=(Scheduler const& other) = delete;
-    auto operator=(Scheduler && other) = delete;
+    Scheduler(Scheduler && other) noexcept = default;
+    Scheduler& operator=(Scheduler const& other) = delete;
+    Scheduler& operator=(Scheduler && other) noexcept = default;
  
-    void transverse(Variable const& variable) {
-
+    void transverse(Variable const& variable) { 
         if (visitor_->visited(variable.index())) { 
             return; 
         }  
@@ -39,15 +41,28 @@ public:
         }
 
         else { 
-            template for (auto const& source : expression.sources()) {
+            Type types[sizeof...(Expressions)];
+            
+            template for (auto index = 0; auto const& source : expression.sources()) {
                 transverse(source);
-            }
 
+                if constexpr (Describable<decltype(source)>) {
+                    types[index++] = source.type();
+                } 
+
+                else {
+                    types[index++] = unknown;
+                } 
+            }
+            
+            auto handler = handlers_.get(expression.symbol(), types);
+            
             visitor_->visit(expression.index());  
         } 
     }
 
 private:
+    Handlers handlers_;
     std::unique_ptr<Visitor> visitor_ = nullptr;
 };
 
