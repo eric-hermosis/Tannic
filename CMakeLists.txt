@@ -10,6 +10,7 @@ set(SOURCES
     src/environments.cpp  
     src/handlers.cpp
     src/graphs.cpp 
+    src/memory.cpp
     src/visitors.cpp
     src/schedules.cpp
     src/variables.cpp

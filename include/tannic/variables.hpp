@@ -23,8 +23,6 @@
  
 namespace tannic {
 
-using expressions::Describable;
-
 class Variable {
 public:
     constexpr Variable() = default;
@@ -69,7 +67,7 @@ public:
     auto forward(this Self&& self, Index& index) { 
         if(!self.vertex_) {
             self.vertex_.acquire();
-            if constexpr (Describable<Self>) {
+            if constexpr (requires {self.symbol(), self.type(), self.layout(); }) {
                 self.vertex_.set(self.symbol(), self.type(), self.layout());    
             }
         }  
@@ -90,13 +88,14 @@ public:
         if (self.vertex_) {
             self.vertex_.release(); 
         } 
-    }
+    } 
 
     template<class Self>
     void acquire(this Self&& self) {
         if(!self.vertex_) {
             self.vertex_.acquire();
-            if constexpr (Describable<Self>) {
+            
+            if constexpr (requires {self.symbol(), self.type(), self.layout(); }) {
                 self.vertex_.set(self.symbol(), self.type(), self.layout());    
             }
         }  

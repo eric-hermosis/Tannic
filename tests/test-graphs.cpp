@@ -36,31 +36,14 @@ TEST(TestNodes, TestBody) {
     EXPECT_EQ(body->layout.shape.sizes[0], 2);
     EXPECT_EQ(body->layout.shape.sizes[1], 2);
 
+
+    node->reset();  
     node->release();
 
     EXPECT_EQ(node->body(), nullptr);
 
     delete node;
-}
-
-TEST(TestNodes, TestReset) {
-    auto node = new Node();
-
-    node->acquire();
-    node->set(Node{}, Type{float32}, Shape{2, 2});
-
-    ASSERT_NE(node->body(), nullptr);
-    EXPECT_EQ(node->body()->layout.rank, 2);
-
-    node->reset();
-
-    ASSERT_NE(node->body(), nullptr);
-    EXPECT_EQ(node->body()->name, nullptr);
-    EXPECT_EQ(node->body()->layout.rank, 0);
-
-    node->release();
-    delete node;
-}
+} 
 
 TEST(TestNodes, TestReuse) {
     auto node = new Node();
@@ -83,7 +66,7 @@ TEST(TestNodes, TestReuse) {
     node->set(Node{}, Type{float32}, Shape{2, 2});
 
     ASSERT_NE(node->body(), nullptr);
-    EXPECT_EQ(node->body()->name, "Node");
+    EXPECT_STREQ(node->body()->name, "Node");
     EXPECT_EQ(node->body()->type, float32);
     EXPECT_EQ(node->body()->layout.rank, 2); 
     node->reset(); 

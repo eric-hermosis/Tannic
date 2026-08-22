@@ -28,12 +28,13 @@ class Function : public Expression<Functor, Arguments...> {
 public:   
     constexpr Function(Functor functor, Arguments const&... arguments)
     :   Expression<Functor, Arguments...>(functor, arguments...) {
-        if constexpr ((requires { operands.type(); } && ...)) {
-            type_ = Type::infer<Operator>(operands.type()...);
+        
+        if constexpr ((requires { arguments.type(); } && ...)) {
+            type_ = Type::infer<Functor>(arguments.type()...);
         }
 
-        if constexpr ((requires { operands.layout(); } && ...)) {
-            layout_ = Layout::infer<Operator>(operands.layout()...);
+        if constexpr ((requires { arguments.layout(); } && ...)) {
+            layout_ = Layout::infer<Functor>(arguments.layout()...);
         }
     }
 

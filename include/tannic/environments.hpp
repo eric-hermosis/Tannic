@@ -22,19 +22,30 @@
 #include <string_view>
 
 namespace tannic { 
- 
-class Host {};  
-class Device {};
+   
+struct Allocator {
+    std::string_view name;
+    auto (*allocate)(std::size_t) -> void*;
+    void (*deallocate)(void*, std::size_t); 
+};
 
+class Host {
+public:
+    Host();
+    [[nodiscard]] auto allocator() const -> Allocator const&;
+private:
+    Allocator allocator_;
+};   
+ 
 class Environment {
     public: 
     Environment() = default; 
     Environment(Host const& host);
-    Environment(Device const& device);
     operator bool() const noexcept;
+    [[nodiscard]] auto allocator() const -> Allocator const&;
 
     private:
-    std::variant<std::monostate, Host, Device> domain_;
+    std::variant<std::monostate, Host> domain_;
 };
 
 } 

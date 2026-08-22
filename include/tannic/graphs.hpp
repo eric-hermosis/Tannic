@@ -1,5 +1,3 @@
-
-
 // Copyright 2026 Eric Hermosis
 //
 // This file is part of the Tannic Tensor Library.
@@ -27,6 +25,8 @@ namespace tannic {
 class Symbol;
 class Layout;
 class Type;   
+class Task;
+class Environment;
 
 class Node { 
 public:  
@@ -34,7 +34,7 @@ public:
     Node();
     void bump() noexcept;
     bool dump() noexcept;
-    void link(Node* other);
+    void link(Node* source);
     void prune();
     void acquire() noexcept;
     void release() noexcept; 
@@ -47,7 +47,7 @@ private:
     std::vector<Node*> sources_; 
     std::uint32_t references_;
 };  
-
+  
 }
 
 #endif

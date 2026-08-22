@@ -34,9 +34,11 @@ public:
     constexpr View(Source const& source, Indexes ... indexes) 
     :   Expression<Slice, Source>({}, source) {   
 
-        if constexpr (Describable<Source>) {
+        if constexpr (requires { source.type(); }) {
             type_ = source.type();
-            
+        }
+
+        if constexpr (requires { source.layout(); }) {  
             auto dimension = 0;    
             auto offset = source.layout().offset();
 

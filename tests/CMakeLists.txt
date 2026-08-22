@@ -21,6 +21,7 @@ set(TESTS
     test-layouts.cpp
     test-symbols.cpp
     test-graphs.cpp
+    test-memory.cpp
     test-visitors.cpp
 )
 

@@ -41,7 +41,7 @@ struct buffer_t {
     void* address;
 };
 
-struct memory_t {   
+struct allocation_t {   
     enum domain domain; 
     struct allocator_t allocator;  
     struct buffer_t buffer; 

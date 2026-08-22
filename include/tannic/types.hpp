@@ -265,7 +265,7 @@ private:
     type type_;
 }; 
  
-auto operator<<(std::ostream&, Type type) -> std::ostream&; 
+auto operator<<(std::ostream&, Type const& type) -> std::ostream&; 
 
 } 
 

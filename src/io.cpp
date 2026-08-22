@@ -42,7 +42,7 @@ void print(std::ostream& stream, const strides_t& strides, rank_type dimensions,
 
 } namespace tannic {
 
-auto operator<<(std::ostream& stream, Type type) -> std::ostream&{
+auto operator<<(std::ostream& stream, Type const& type) -> std::ostream&{
     io::print(stream, type);
     return stream;
 }

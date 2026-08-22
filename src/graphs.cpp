@@ -35,21 +35,21 @@ void Node::prune() {
 static struct { 
     std::stack<expression_t> arena;
     std::stack<expression_t*, std::vector<expression_t*>> free;
-} pool; 
+} expressions; 
 
 void Node::acquire() noexcept {
-    if (pool.free.empty()) {
-        body_ = &pool.arena.emplace();
+    if (expressions.free.empty()) {
+        body_ = &expressions.arena.emplace();
     } 
     
     else {
-        body_ = pool.free.top();
-        pool.free.pop();
+        body_ = expressions.free.top();
+        expressions.free.pop();
     } 
 }
 
 void Node::release() noexcept {     
-    pool.free.push(body_);
+    expressions.free.push(body_);
     body_ = nullptr;  
 } 
 
@@ -83,5 +83,5 @@ void Node::reset() noexcept {
 auto Node::body() const noexcept -> Body* {
     return body_;
 }
-
+   
 }

@@ -29,8 +29,7 @@
 
 namespace tannic {
  
-using expressions::Expression; 
-using expressions::Describable;
+using expressions::Expression;  
  
 class Schedule {
 public: 
@@ -51,7 +50,7 @@ public:
             return; 
         }  
     }
-    
+ 
     template<class Symbol, class ... Expressions>
     void transverse(Expression<Symbol, Expressions...> const& expression) {    
         if (visitor_->visited(expression.index())) { 
@@ -63,7 +62,7 @@ public:
 
             template for (auto index = 0; auto const& source : expression.sources()) {
                 transverse(source);
-                if constexpr (Describable<decltype(source)>) {
+                if constexpr ( requires { source.type(); } ) {
                     types[index] = source.type();
                 }  
                 index++;

@@ -14,18 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // 
-#ifndef CONTEXT_HPP_0x45524943
-#define CONTEXT_HPP_0x45524943
-
-#include <tannic/environments.hpp>
+#ifndef MEMORY_HPP_0x45524943
+#define MEMORY_HPP_0x45524943
+#include <cstdint>
+#include <cstddef>
+#include <vector>
 
 namespace tannic {
+ 
+class Environment;
 
-class Context {
-public:
-
-};
-
+class Memory { 
+public:  
+    using Body = struct allocation_t; 
+    Memory();
+    void bump() noexcept;
+    bool dump() noexcept;
+    void acquire() noexcept;
+    void release() noexcept; 
+    void set(std::size_t size, Environment const& environment) noexcept;  
+    void reset() noexcept; 
+    void allocate();
+    void deallocate() noexcept;
+    auto body() const noexcept -> Body*;
+    
+private: 
+    Body* body_ = nullptr;  
+    std::uint32_t references_;
+};  
+  
 }
 
 #endif

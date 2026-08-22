@@ -162,13 +162,6 @@ private:
     std::tuple<typename Trait<Expressions>::type ...> sources_;  
 };  
 
-template<class Expression>
-concept Describable = requires(Expression const& expression) {
-    { expression.symbol() } -> std::convertible_to<Symbol>;
-    { expression.type()   } -> std::same_as<Type const&>;
-    { expression.layout() } -> std::same_as<Layout const&>;
-};
-
 }
 
 #endif
