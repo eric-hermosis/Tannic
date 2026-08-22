@@ -7,24 +7,21 @@
 #include <tannic/types.hpp>
 #include <tannic/layouts.hpp>
 #include <tannic/graphs.hpp>
-#include <tannic/environments.hpp>
 
-#include <iostream>
-
-namespace tannic { 
+namespace tannic {
     
 Node::Node()
-:   links_(0) {
+:   references_(0) {
     sources_.reserve(4);
 }
 
-void Node::bump() {
-    ++links_;
+void Node::bump() noexcept {
+    ++references_;
 }
 
-bool Node::dump() {
-    assert(links_ > 0);
-    return --links_ == 0;
+bool Node::dump() noexcept {
+    assert(references_ > 0);
+    return --references_ == 0;
 }
 
 void Node::link(Node* source) {
@@ -36,20 +33,25 @@ void Node::prune() {
 } 
 
 static struct { 
-    std::stack<node_t> arena;
-    std::stack<node_t*, std::vector<node_t*>> free;
-} local; 
+    std::stack<expression_t> arena;
+    std::stack<expression_t*, std::vector<expression_t*>> free;
+} pool; 
 
 void Node::acquire() noexcept {
-    if (local.free.empty()) {
-        body_ = &local.arena.emplace();
+    if (pool.free.empty()) {
+        body_ = &pool.arena.emplace();
     } 
     
     else {
-        body_ = local.free.top();
-        local.free.pop();
+        body_ = pool.free.top();
+        pool.free.pop();
     } 
 }
+
+void Node::release() noexcept {     
+    pool.free.push(body_);
+    body_ = nullptr;  
+} 
 
 void Node::set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept { 
     assert(body_);
@@ -61,44 +63,25 @@ void Node::set(Symbol const& symbol, Type const& type, Layout const& layout) noe
         strides.sizes[dimension] = layout.stride(dimension);
     }
 
-    new (body_) node_t {
-        .kind = EXPRESSION,
-        .expression { 
-            .name = symbol.name().data(),
-            .type = type,
-            .layout {
-                .rank = layout.rank(),
-                .size = layout.size(),
-                .shape = shape,
-                .strides = strides
-            }
+    new (body_) expression_t {  
+        .name = symbol.name().data(),
+        .type = type,
+        .layout {
+            .rank = layout.rank(),
+            .size = layout.size(),
+            .shape = shape,
+            .strides = strides
         } 
     };
-}
-
-void Node::set(Handler const& handler) noexcept { 
-    assert(body_);
-
-    new (body_) node_t {
-        .kind = COMPUTATION
-    };
-}
-
-void Node::set(Environment const& environment) noexcept { 
-    assert(body_);
-
-    new (body_) node_t {
-        .kind = ALLOCATION
-    };
-}
+} 
 
 void Node::reset() noexcept {
-    new (body_) node_t;
+    assert(body_);
+    new (body_) expression_t {};
 } 
-  
-void Node::release() noexcept {     
-    local.free.push(body_);
-    body_ = nullptr;  
-} 
+
+auto Node::body() const noexcept -> Body* {
+    return body_;
+}
 
 }

@@ -19,11 +19,11 @@
 
 #include <tannic/types.hpp>
 #include <tannic/layouts.hpp>
-#include <tannic/symbols.hpp>   
-#include <tannic/expressions.hpp> 
+#include <tannic/symbols.hpp>    
 #include <tannic/variables.hpp>
+#include <tannic/expressions.hpp> 
 
-namespace tannic::expressions {
+namespace tannic {
 
 class Tensor : public Variable {
 public: 
@@ -55,15 +55,11 @@ private:
 };
 
 template<>
-class Trait<Tensor> {
+class expressions::Trait<Tensor> {
 public:
     using type = Tensor const&;
 };
 
-} namespace tannic {
-
-using expressions::Tensor;
-
-}
+}  
 
 #endif

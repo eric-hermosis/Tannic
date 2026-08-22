@@ -20,6 +20,7 @@ set(TESTS
     test-types.cpp
     test-layouts.cpp
     test-symbols.cpp
+    test-graphs.cpp
     test-visitors.cpp
 )
 

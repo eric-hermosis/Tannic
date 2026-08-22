@@ -1,11 +1,12 @@
-#include <stack>
-#include <vector>
 #include <cassert>
-#include <tannic/graphs.hpp> 
-#include <tannic/expressions.hpp> 
-
-namespace tannic::expressions {
+#include <utility> 
+#include <stack>
+#include <vector>  
+#include <tannic/graphs.hpp>
+#include <tannic/expressions.hpp>
  
+namespace tannic {  
+   
 Index::Index(std::size_t value)
 :   value_(value) {}
 
@@ -28,7 +29,7 @@ auto Index::forward() noexcept -> Index {
 static struct { 
     std::stack<Node> arena;
     std::stack<Node*, std::vector<Node*>> free;
-} global;
+} pool;
 
 Vertex::operator bool() const noexcept {
     return node_ != nullptr;
@@ -52,13 +53,13 @@ void Vertex::precede(Vertex const& other) {
 
 void Vertex::acquire() noexcept {
     if (!node_) { 
-        if (global.free.empty()) {
-            node_ = &global.arena.emplace();
+        if (pool.free.empty()) {
+            node_ = &pool.arena.emplace();
         }
 
         else {
-            node_ = global.free.top();
-            global.free.pop();
+            node_ = pool.free.top();
+            pool.free.pop();
         }
         node_->acquire();
     }
@@ -70,7 +71,7 @@ void Vertex::release() noexcept {
         node_->prune();
         node_->reset();
         node_->release();
-        global.free.push(node_);
+        pool.free.push(node_);
         node_ = nullptr;
     } 
 } 

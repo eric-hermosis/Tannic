@@ -1,3 +1,5 @@
+
+
 // Copyright 2026 Eric Hermosis
 //
 // This file is part of the Tannic Tensor Library.
@@ -13,44 +15,38 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
+// 
 #ifndef GRAPHS_HPP_0x45524943
 #define GRAPHS_HPP_0x45524943
-
 #include <cstdint>
 #include <cstddef>
 #include <vector>
 
-namespace tannic {  
+namespace tannic {
 
 class Symbol;
 class Layout;
-class Type;  
-class Handler;
-class Environment;
+class Type;   
 
 class Node { 
-
 public:  
-    using Body = struct node_t; 
+    using Body = struct expression_t; 
     Node();
-    void bump();
-    bool dump();
+    void bump() noexcept;
+    bool dump() noexcept;
     void link(Node* other);
     void prune();
     void acquire() noexcept;
-    void set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept; 
-    void set(Handler const& handler) noexcept;
-    void set(Environment const& environment) noexcept;
-    void reset() noexcept;
     void release() noexcept; 
+    void set(Symbol const& symbol, Type const& type, Layout const& layout) noexcept;  
+    void reset() noexcept; 
+    auto body() const noexcept -> Body*;
     
 private: 
-    Body* body_ = nullptr;
-
-    std::uint32_t links_;
+    Body* body_ = nullptr; 
     std::vector<Node*> sources_; 
-}; 
+    std::uint32_t references_;
+};  
 
 }
 

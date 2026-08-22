@@ -28,10 +28,8 @@
 #include <tannic/environments.hpp>
 
 namespace tannic {
-
-using expressions::Index;
-using expressions::Expression;
-using expressions::Variable;
+ 
+using expressions::Expression; 
 using expressions::Describable;
  
 class Schedule {

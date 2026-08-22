@@ -1,7 +1,7 @@
 #include <utility>
 #include <tannic/variables.hpp>
 
-namespace tannic::expressions { 
+namespace tannic { 
      
 auto Variable::index() const noexcept -> Index const& {
     return index_;

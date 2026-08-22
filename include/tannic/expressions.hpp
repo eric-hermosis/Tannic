@@ -16,27 +16,18 @@
 // 
 #ifndef EXPRESSIONS_HPP_0x45524943
 #define EXPRESSIONS_HPP_0x45524943
-
-#include <iostream>
-#include <tuple>  
-#include <concepts>
+  
+#include <concepts> 
+#include <tuple>   
 #include <type_traits>  
 
-namespace tannic {
+namespace tannic {  
 
-class Node;
-class Type;
+class Symbol;
 class Layout;
-class Symbol;  
+class Type;   
+class Node;
 
-} namespace tannic::expressions { 
-
-template<class Expression>
-class Trait {
-public:
-    using type = typename std::decay<Expression>::type;
-};
-      
 class Index {
 public: 
     constexpr Index() = default;
@@ -66,22 +57,57 @@ public:
 private: 
     Node* node_ = nullptr;
 };   
-   
-template<class Expression>
-concept Composable = requires(Expression const& expression, Index& index) {
-    { expression.forward(index)  }; 
-    { expression.backward()      };
-    { expression.vertex()   } -> std::same_as<Vertex const&>;
-    { expression.index()    } -> std::same_as<Index const&>;
+
+template<class Component>
+concept Composable = requires(Component const& component, Index& index) {
+    { component.forward(index)  }; 
+    { component.backward()      };
+    { component.vertex()   } -> std::same_as<Vertex const&>;
+    { component.index()    } -> std::same_as<Index const&>;
 };  
 
-template<class Expression>
-concept Describable = requires(Expression const& expression) {
-    { expression.symbol() } -> std::convertible_to<Symbol>;
-    { expression.type()   } -> std::same_as<Type const&>;
-    { expression.layout() } -> std::same_as<Layout const&>;
-};
+template<Composable Composition>
+class Graph {
+public:  
+    Graph(Composition && composition) 
+    :   composition_(std::move(composition)) {
+        composition_.forward(index_);
+    }
 
+    ~Graph() {
+        composition_.backward();
+    } 
+
+    Graph(Graph const& other) = delete;
+    Graph(Graph && other) noexcept = default;
+    Graph& operator=(Graph const& other) = delete;
+    Graph& operator=(Graph && other) = default;
+
+    [[nodiscard]] auto composition() const -> Composition const& {
+        return composition_;
+    }
+
+    [[nodiscard]] auto root() const noexcept -> Vertex const& {
+        return composition_.vertex();
+    }
+
+    [[nodiscard]] auto size() const noexcept -> std::size_t {
+        return index_.value();
+    } 
+
+private:
+    Index index_;
+    Composition composition_;
+}; 
+
+template<class Expression>
+class Trait {
+public:
+    using type = typename std::decay<Expression>::type;
+};  
+
+} namespace tannic::expressions { 
+    
 template<class Symbol, class ... Expressions>
 class Expression {
 public:      
@@ -134,41 +160,14 @@ private:
     mutable Vertex vertex_;
     std::decay<Symbol>::type symbol_;
     std::tuple<typename Trait<Expressions>::type ...> sources_;  
-}; 
+};  
 
-template<Composable Expression>
-class Graph {
-public: 
-
-    Graph(Expression && expression) 
-    :   expression_(std::move(expression)) {
-        expression_.forward(index_);
-    }
-
-    ~Graph() {
-        expression_.backward();
-    } 
-
-    [[nodiscard]] auto expression() -> Expression const& {
-        return expression_;
-    }
-
-    [[nodiscard]] auto root() const noexcept -> Vertex const& {
-        return expression_.vertex();
-    }
-
-    [[nodiscard]] auto size() const noexcept -> std::size_t {
-        return index_.value();
-    } 
-
-private:
-    Index index_;
-    Expression expression_;
+template<class Expression>
+concept Describable = requires(Expression const& expression) {
+    { expression.symbol() } -> std::convertible_to<Symbol>;
+    { expression.type()   } -> std::same_as<Type const&>;
+    { expression.layout() } -> std::same_as<Layout const&>;
 };
-   
-} namespace tannic {
-
-using expressions::Graph;
 
 }
 

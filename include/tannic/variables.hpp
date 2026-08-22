@@ -17,14 +17,13 @@
 
 #ifndef VARIABLES_HPP_0x45524943
 #define VARIABLES_HPP_0x45524943
-
-#include <iostream>
-
-#include <tannic/symbols.hpp>
-#include <tannic/expressions.hpp>
-#include <tannic/context.hpp>
  
-namespace tannic::expressions {
+#include <tannic/symbols.hpp>  
+#include <tannic/expressions.hpp>
+ 
+namespace tannic {
+
+using expressions::Describable;
 
 class Variable {
 public:

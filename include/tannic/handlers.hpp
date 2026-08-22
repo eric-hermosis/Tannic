@@ -26,11 +26,7 @@ class Handler {};
   
 class Handlers {
 public:  
-    Handlers(Environment const& environment);
-
-    auto get() const -> Handler;
-
-    auto get(Environment const& source) -> Handler;
+    Handlers(Environment const& environment); 
 
     template<typename Symbol, typename... Types>
     auto get(Symbol, Types const&... types) const -> Handler;
